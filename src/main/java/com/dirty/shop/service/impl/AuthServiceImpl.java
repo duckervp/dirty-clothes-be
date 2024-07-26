@@ -1,0 +1,96 @@
+package com.dirty.shop.service.impl;
+
+import com.dirty.shop.dto.Token;
+import com.dirty.shop.dto.request.LoginRequest;
+import com.dirty.shop.dto.request.RegisterRequest;
+import com.dirty.shop.dto.response.LoginResponse;
+import com.dirty.shop.enums.Role;
+import com.dirty.shop.enums.apicode.AuthenticationApiCode;
+import com.dirty.shop.enums.apicode.CommonApiCode;
+import com.dirty.shop.exception.ApiException;
+import com.dirty.shop.model.User;
+import com.dirty.shop.repository.UserRepository;
+import com.dirty.shop.service.AuthService;
+import com.dirty.shop.service.AuthTokenService;
+import com.dirty.shop.utils.RegexUtils;
+import com.dirty.shop.utils.SerializeUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.PatternMatchUtils;
+import org.springframework.util.StringUtils;
+
+import java.util.regex.Pattern;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class AuthServiceImpl implements AuthService {
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final AuthTokenService authTokenService;
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    @Override
+    public LoginResponse login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        user,
+                        request.getPassword(),
+                        user.getAuthorities()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return getLoginResponse(user);
+    }
+
+    @Override
+    @Transactional
+    public LoginResponse register(RegisterRequest request) {
+        if (!StringUtils.hasText(request.getName())) {
+            throw new ApiException(AuthenticationApiCode.NAME_IS_REQUIRED);
+        }
+
+        if (!StringUtils.hasText(request.getEmail())) {
+            throw new ApiException(AuthenticationApiCode.EMAIL_IS_REQUIRED);
+        }
+
+        if (!RegexUtils.EMAIL_PATTERN.matcher(request.getEmail()).find()) {
+            throw new ApiException(AuthenticationApiCode.INVALID_EMAIL);
+        }
+
+        User user = User.builder()
+                .status(true)
+                .role(Role.USER)
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .build();
+
+        userRepository.save(user);
+        return getLoginResponse(user);
+    }
+
+    public LoginResponse getLoginResponse(User user) {
+        try {
+            Token token = authTokenService.createRefreshToken(user.getId());
+            String accessToken = authTokenService.createAccessToken(user);
+            return LoginResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(token.getValue())
+                    .refreshTokenExpiredAt(token.getExpiredAt())
+                    .name(user.getName())
+                    .email(user.getEmail())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error: ", e);
+            throw new ApiException(CommonApiCode.ERROR);
+        }
+    }
+}

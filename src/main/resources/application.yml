@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: shop
+  jpa:
+    openInView: false
+    properties:
+      hibernate:
+        dialect=org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddlAuto: update
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_URL}?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirectUri: ${GOOGLE_REDIRECT_URI}
+
+auth:
+  token-secret: ${AUTH_TOKEN_SECRET}
+  access-token-expiration-mils: 86400000
+  refresh-token-expiration-mils: 259200000
+  verify-email-token-expiration-mils: 86400000
+
+server:
+  port: ${SERVER_PORT}
+
+springdoc:
+  swaggerUi:
+    showExtensions: true
+    showCommonExtensions: true
+  use-fqn: false #show class in detail
+  version: '2.2.0'
+  server-url: ${PROD_URL}
