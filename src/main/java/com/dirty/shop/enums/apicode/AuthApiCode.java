@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum AuthenticationApiCode implements ApiCode {
+public enum AuthApiCode implements ApiCode {
 
     USER_NOT_FOUND_WITH_GIVEN_EMAIL(2, "User not found with given email"),
     USER_NOT_FOUND_WITH_GIVEN_ID(3, "User not found with given id"),

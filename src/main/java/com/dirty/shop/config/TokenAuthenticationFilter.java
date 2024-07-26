@@ -3,7 +3,7 @@ package com.dirty.shop.config;
 import com.dirty.shop.base.WebConstants;
 import com.dirty.shop.config.property.AuthProperty;
 import com.dirty.shop.enums.Role;
-import com.dirty.shop.enums.apicode.AuthenticationApiCode;
+import com.dirty.shop.enums.apicode.AuthApiCode;
 import com.dirty.shop.model.User;
 import com.dirty.shop.repository.UserRepository;
 import com.dirty.shop.utils.AuthTokenUtils;
@@ -50,7 +50,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         try {
             jwt = AuthenticationUtils.getJwtFromRequest(request);
             if (StringUtils.hasText(jwt)) {
-                Optional<AuthenticationApiCode> error = AuthTokenUtils.validateToken(
+                Optional<AuthApiCode> error = AuthTokenUtils.validateToken(
                         jwt, authProperty.getTokenSecret()
                 );
 
@@ -61,7 +61,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
                 User user = AuthTokenUtils.loadUserFromJwt(jwt, authProperty.getTokenSecret());
                 if (Objects.isNull(user)) {
-                    AuthenticationUtils.withUnauthorizedResponse(response, AuthenticationApiCode.INVALID_JWT_TOKEN);
+                    AuthenticationUtils.withUnauthorizedResponse(response, AuthApiCode.INVALID_JWT_TOKEN);
                     return;
                 }
 
@@ -69,7 +69,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
 
                 if (!canAccessToResource(user.getRole(), request)) {
-                    AuthenticationUtils.withPermissionDeniedResponse(response, AuthenticationApiCode.PERMISSION_DENIED);
+                    AuthenticationUtils.withPermissionDeniedResponse(response, AuthApiCode.PERMISSION_DENIED);
                     return;
                 }
 

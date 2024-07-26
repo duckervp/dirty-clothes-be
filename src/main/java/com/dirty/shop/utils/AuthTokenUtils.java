@@ -1,6 +1,6 @@
 package com.dirty.shop.utils;
 
-import com.dirty.shop.enums.apicode.AuthenticationApiCode;
+import com.dirty.shop.enums.apicode.AuthApiCode;
 import com.dirty.shop.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -32,16 +32,6 @@ public class AuthTokenUtils {
                 .compact();
     }
 
-    public static String createAccessToken(Long memberId, User user, Date expiryDate, String tokenSecret) {
-        return Jwts.builder()
-                .setSubject(Long.toString(memberId))
-                .setClaims(Map.of("user", user.getUserInfo()))
-                .setIssuedAt(new Date())
-                .setExpiration(expiryDate)
-                .signWith(getSigningKey(tokenSecret), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
     private static Key getSigningKey(String tokenSecret) {
         byte[] keyBytes = tokenSecret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
@@ -61,24 +51,24 @@ public class AuthTokenUtils {
         }
     }
 
-    public static Optional<AuthenticationApiCode> validateToken(String authToken, String tokenSecret) {
+    public static Optional<AuthApiCode> validateToken(String authToken, String tokenSecret) {
         try {
             Jwts.parserBuilder().setSigningKey(getSigningKey(tokenSecret)).build().parseClaimsJws(authToken);
         } catch (SignatureException ex) {
             log.error(error, ex);
-            return Optional.of(AuthenticationApiCode.INVALID_JWT_SIGNATURE);
+            return Optional.of(AuthApiCode.INVALID_JWT_SIGNATURE);
         } catch (MalformedJwtException ex) {
             log.error(error, ex);
-            return Optional.of(AuthenticationApiCode.INVALID_JWT_TOKEN);
+            return Optional.of(AuthApiCode.INVALID_JWT_TOKEN);
         } catch (ExpiredJwtException ex) {
             log.error(error, ex);
-            return Optional.of(AuthenticationApiCode.JWT_TOKEN_EXPIRED);
+            return Optional.of(AuthApiCode.JWT_TOKEN_EXPIRED);
         } catch (UnsupportedJwtException ex) {
             log.error(error, ex);
-            return Optional.of(AuthenticationApiCode.UNSUPPORTED_JWT_TOKEN);
+            return Optional.of(AuthApiCode.UNSUPPORTED_JWT_TOKEN);
         } catch (IllegalArgumentException ex) {
             log.error(error, ex);
-            return Optional.of(AuthenticationApiCode.JWT_CLAIMS_EMPTY);
+            return Optional.of(AuthApiCode.JWT_CLAIMS_EMPTY);
         }
         return Optional.empty();
     }

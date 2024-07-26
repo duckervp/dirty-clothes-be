@@ -24,11 +24,8 @@ public class AuthTokenServiceImpl implements AuthTokenService {
         Instant expiredAt = DateTimeUtils.getCurrentInstantMilliseconds().plusMillis(
             authProperty.getRefreshTokenExpirationMils());
         String value = UUID.randomUUID().toString();
-
-        Token token = Token.from(value, expiredAt);
-
-        TokenContextHolder.setUserRefreshToken(userId, token);
-
+        Token token = Token.from(userId, value, expiredAt);
+        TokenContextHolder.setUserRefreshToken(token);
         return token;
     }
 
@@ -49,14 +46,10 @@ public class AuthTokenServiceImpl implements AuthTokenService {
             user.getUserInfo(),
             authProperty.getAccessTokenExpirationMils(),
             authProperty.getTokenSecret());
-
         Instant expiredAt = DateTimeUtils.getCurrentInstantMilliseconds().plusMillis(
             authProperty.getAccessTokenExpirationMils());
-
-        Token token = Token.from(value, expiredAt);
-
-        TokenContextHolder.setUserAccessToken(user.getId(), token);
-
+        Token token = Token.from(user.getId(), value, expiredAt);
+        TokenContextHolder.setUserAccessToken(token);
         return value;
     }
 
@@ -67,14 +60,10 @@ public class AuthTokenServiceImpl implements AuthTokenService {
             user.getUserInfo(),
             expireMils,
             authProperty.getTokenSecret());
-
         Instant expiredAt = DateTimeUtils.getCurrentInstantMilliseconds().plusMillis(
             expireMils);
-
-        Token token = Token.from(value, expiredAt);
-
-        TokenContextHolder.setUserAccessToken(user.getId(), token);
-
+        Token token = Token.from(user.getId(), value, expiredAt);
+        TokenContextHolder.setUserAccessToken(token);
         return value;
     }
 

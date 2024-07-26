@@ -1,11 +1,13 @@
 package com.dirty.shop.service.impl;
 
+import com.dirty.shop.config.context.TokenContextHolder;
 import com.dirty.shop.dto.Token;
 import com.dirty.shop.dto.request.LoginRequest;
+import com.dirty.shop.dto.request.RefreshTokenRequest;
 import com.dirty.shop.dto.request.RegisterRequest;
 import com.dirty.shop.dto.response.LoginResponse;
 import com.dirty.shop.enums.Role;
-import com.dirty.shop.enums.apicode.AuthenticationApiCode;
+import com.dirty.shop.enums.apicode.AuthApiCode;
 import com.dirty.shop.enums.apicode.CommonApiCode;
 import com.dirty.shop.exception.ApiException;
 import com.dirty.shop.model.User;
@@ -13,7 +15,6 @@ import com.dirty.shop.repository.UserRepository;
 import com.dirty.shop.service.AuthService;
 import com.dirty.shop.service.AuthTokenService;
 import com.dirty.shop.utils.RegexUtils;
-import com.dirty.shop.utils.SerializeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,10 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
-
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -54,15 +52,15 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public LoginResponse register(RegisterRequest request) {
         if (!StringUtils.hasText(request.getName())) {
-            throw new ApiException(AuthenticationApiCode.NAME_IS_REQUIRED);
+            throw new ApiException(AuthApiCode.NAME_IS_REQUIRED);
         }
 
         if (!StringUtils.hasText(request.getEmail())) {
-            throw new ApiException(AuthenticationApiCode.EMAIL_IS_REQUIRED);
+            throw new ApiException(AuthApiCode.EMAIL_IS_REQUIRED);
         }
 
         if (!RegexUtils.EMAIL_PATTERN.matcher(request.getEmail()).find()) {
-            throw new ApiException(AuthenticationApiCode.INVALID_EMAIL);
+            throw new ApiException(AuthApiCode.INVALID_EMAIL);
         }
 
         User user = User.builder()
@@ -74,6 +72,23 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
+        return getLoginResponse(user);
+    }
+
+    @Override
+    public LoginResponse refreshToken(RefreshTokenRequest request) {
+        if (!StringUtils.hasText(request.getRefreshToken())) {
+            throw new ApiException(AuthApiCode.INVALID_REFRESH_TOKEN);
+        }
+
+        Token refreshToken =  TokenContextHolder.getUserRefreshToken(
+                request.getRefreshToken(),
+                AuthApiCode.INVALID_REFRESH_TOKEN,
+                AuthApiCode.REFRESH_TOKEN_EXPIRED);
+
+        User user = userRepository.findById(refreshToken.getUserId())
+                .orElseThrow(() -> new ApiException(AuthApiCode.USER_NOT_FOUND_WITH_GIVEN_ID));
+
         return getLoginResponse(user);
     }
 
