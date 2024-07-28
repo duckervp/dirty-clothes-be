@@ -33,13 +33,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private final AuthProperty authProperty;
     private final UserRepository userRepository;
 
-    private boolean canAccessToResource(Role userRole, HttpServletRequest request) {
-        if (request.getRequestURI().startsWith(WebConstants.ADMIN.API_BASE_PREFIX_V1)) {
-            return Role.ADMIN.equals(userRole);
-        }
-        return true;
-    }
-
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
@@ -66,12 +59,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 user = userRepository.findByEmail(user.getEmail()).orElseThrow();
-
-
-                if (!canAccessToResource(user.getRole(), request)) {
-                    AuthenticationUtils.withPermissionDeniedResponse(response, AuthApiCode.PERMISSION_DENIED);
-                    return;
-                }
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());

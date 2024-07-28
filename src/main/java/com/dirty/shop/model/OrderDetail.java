@@ -21,12 +21,9 @@ public class OrderDetail extends BaseModel {
 
     private Long orderId;
 
-    @Enumerated(EnumType.STRING)
-    private Size size;
+    private Long productDetailId;
 
     private Double price;
 
-    private Long inventory;
-
-    private Long sold;
+    private Integer quantity;
 }

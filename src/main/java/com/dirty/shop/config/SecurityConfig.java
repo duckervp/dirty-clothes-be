@@ -30,8 +30,10 @@ import java.util.List;
 @AllArgsConstructor
 public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
+
     private final TokenAuthenticationFilter tokenAuthenticationFilter;
-    private static final String PUBLIC_POSTFIX_PATTERN = "/public/**";
+
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     private static String etc(String prefix) {
         return String.format("%s/**", prefix);
@@ -39,6 +41,9 @@ public class SecurityConfig {
 
     private static final String[] PERMIT_ALL_URLS = new String[]{
             etc(WebConstants.API_AUTH_PREFIX_V1),
+            etc(WebConstants.API_FILE_PREFIX_V1),
+
+            etc(WebConstants.UPLOADED_FILE_PREFIX),
 
             "/error",
             "/oauth2/**",
@@ -81,7 +86,9 @@ public class SecurityConfig {
                         .anyRequest()
                         .authenticated())
                 .authenticationProvider(authenticationProvider())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(customAuthenticationEntryPoint));
 
         // Add our custom Token based authentication filter
         http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -90,9 +97,10 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3030"));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

@@ -1,6 +1,7 @@
 package com.dirty.shop.model;
 
 import com.dirty.shop.base.BaseModel;
+import com.dirty.shop.enums.ProductTarget;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
@@ -22,5 +23,11 @@ public class Product extends BaseModel {
 
     private String description;
 
-    private Long categoryId;
+    @Enumerated(EnumType.STRING)
+    private ProductTarget target;
+
+    private Double price;
+
+    private String categoryIds; // comma separated category id
+
 }

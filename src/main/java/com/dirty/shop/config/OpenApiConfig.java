@@ -50,25 +50,17 @@ class OpenApiConfig {
     @Bean
     public GroupedOpenApi authApi() {
         return GroupedOpenApi.builder()
-                .group("Shop Authentication")
+                .group("Authentication")
                 .pathsToMatch(WebConstants.API_AUTH_PREFIX_V1 + "/**")
                 .build();
     }
 
     @Bean
-    public GroupedOpenApi userApi() {
+    public GroupedOpenApi businessApi() {
         return GroupedOpenApi.builder()
-                .group("Shop User Site")
+                .group("Shop APIs")
                 .pathsToMatch(WebConstants.API_BASE_PREFIX_V1 + "/**")
-                .pathsToExclude(WebConstants.API_AUTH_PREFIX_V1 + "/**", WebConstants.ADMIN.API_BASE_PREFIX_V1 + "/**")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi adminApi() {
-        return GroupedOpenApi.builder()
-                .group("Shop Admin Site")
-                .pathsToMatch(WebConstants.ADMIN.API_BASE_PREFIX_V1 + "/**")
+                .pathsToExclude(WebConstants.API_AUTH_PREFIX_V1 + "/**")
                 .build();
     }
 

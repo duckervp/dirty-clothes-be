@@ -59,8 +59,12 @@ public class AuthServiceImpl implements AuthService {
             throw new ApiException(AuthApiCode.EMAIL_IS_REQUIRED);
         }
 
-        if (!RegexUtils.EMAIL_PATTERN.matcher(request.getEmail()).find()) {
+        if (!RegexUtils.EMAIL_PATTERN_V2.matcher(request.getEmail()).find()) {
             throw new ApiException(AuthApiCode.INVALID_EMAIL);
+        }
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new ApiException(AuthApiCode.EMAIL_IS_IN_USED);
         }
 
         User user = User.builder()

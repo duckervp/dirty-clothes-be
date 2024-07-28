@@ -21,6 +21,10 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
             redirectUri: ${GOOGLE_REDIRECT_URI}
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 auth:
   token-secret: ${AUTH_TOKEN_SECRET}
@@ -38,3 +42,7 @@ springdoc:
   use-fqn: false #show class in detail
   version: '2.2.0'
   server-url: ${PROD_URL}
+
+file:
+  rootPath: public/uploads
+  domain: ${PROD_URL}

@@ -24,8 +24,6 @@ public class ProductDetail extends BaseModel {
     @Enumerated(EnumType.STRING)
     private Size size;
 
-    private Double price;
-
     private Long inventory;
 
     private Long sold;

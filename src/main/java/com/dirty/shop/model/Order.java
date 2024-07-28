@@ -28,7 +28,7 @@ public class Order extends BaseModel {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    private Long addressId;
+    private Long shippingAddressId;
 
     private String reason;
 }
