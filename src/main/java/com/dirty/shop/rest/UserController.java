@@ -32,13 +32,13 @@ public class UserController {
 
     @PostMapping()
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response<User>> save(@RequestBody UserRequest request) {
+    public ResponseEntity<Response<String>> save(@RequestBody UserRequest request) {
         return ResponseEntity.ok(Response.success(userService.save(request)));
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response<User>> update(@PathVariable Long id, @RequestBody UserRequest request) {
+    public ResponseEntity<Response<String>> update(@PathVariable Long id, @RequestBody UserRequest request) {
         return ResponseEntity.ok(Response.success(userService.update(id, request)));
     }
 

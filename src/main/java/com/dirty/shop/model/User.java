@@ -2,6 +2,7 @@ package com.dirty.shop.model;
 
 import com.dirty.shop.base.BaseModel;
 import com.dirty.shop.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
@@ -27,6 +28,7 @@ public class User extends BaseModel implements UserDetails {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
     private String name;
@@ -48,12 +50,13 @@ public class User extends BaseModel implements UserDetails {
         return email;
     }
 
-    public User getUserInfo() {
+    @JsonIgnore
+    public static User getUserInfo(User user) {
         return User.builder()
-                .email(this.email)
-                .name(this.name)
-                .role(this.role)
-                .status(this.status)
+                .email(user.email)
+                .name(user.name)
+                .role(user.role)
+                .status(user.status)
                 .build();
     }
 }

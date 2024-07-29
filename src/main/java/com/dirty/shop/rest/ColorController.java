@@ -33,13 +33,13 @@ public class ColorController {
 
     @PostMapping()
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response<Color>> save(@RequestBody ColorRequest request) {
+    public ResponseEntity<Response<String>> save(@RequestBody ColorRequest request) {
         return ResponseEntity.ok(Response.success(colorService.save(request)));
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response<Color>> update(@PathVariable Long id, @RequestBody ColorRequest request) {
+    public ResponseEntity<Response<String>> update(@PathVariable Long id, @RequestBody ColorRequest request) {
         return ResponseEntity.ok(Response.success(colorService.update(id, request)));
     }
 

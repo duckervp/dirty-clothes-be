@@ -8,11 +8,11 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface AddressService {
-    Address save(AddressRequest request);
+    String save(AddressRequest request);
 
     Page<Address> findAll(FindAddressRequest request);
 
-    Address update(Long id, AddressRequest request);
+    String update(Long id, AddressRequest request);
 
     String delete(Long id);
 

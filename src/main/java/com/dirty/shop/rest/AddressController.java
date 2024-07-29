@@ -30,12 +30,12 @@ public class AddressController {
     }
 
     @PostMapping()
-    public ResponseEntity<Response<Address>> save(@RequestBody AddressRequest request) {
+    public ResponseEntity<Response<String>> save(@RequestBody AddressRequest request) {
         return ResponseEntity.ok(Response.success(addressService.save(request)));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Response<Address>> update(@PathVariable Long id, @RequestBody AddressRequest request) {
+    public ResponseEntity<Response<String>> update(@PathVariable Long id, @RequestBody AddressRequest request) {
         return ResponseEntity.ok(Response.success(addressService.update(id, request)));
     }
 
