@@ -32,13 +32,13 @@ public class CategoryController {
 
     @PostMapping()
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response<Category>> save(@RequestBody CategoryRequest request) {
+    public ResponseEntity<Response<String>> save(@RequestBody CategoryRequest request) {
         return ResponseEntity.ok(Response.success(categoryService.save(request)));
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response<Category>> update(@PathVariable Long id, @RequestBody CategoryRequest request) {
+    public ResponseEntity<Response<String>> update(@PathVariable Long id, @RequestBody CategoryRequest request) {
         return ResponseEntity.ok(Response.success(categoryService.update(id, request)));
     }
 

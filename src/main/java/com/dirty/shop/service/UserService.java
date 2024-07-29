@@ -8,11 +8,11 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface UserService {
-    User save(UserRequest request);
+    String save(UserRequest request);
 
     Page<User> findAll(FindUserRequest request);
 
-    User update(Long id, UserRequest request);
+    String update(Long id, UserRequest request);
 
     String delete(Long id);
 

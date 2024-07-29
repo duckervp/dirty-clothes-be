@@ -12,9 +12,9 @@ public interface CategoryService {
 
     Category findById(Long id);
 
-    Category save(CategoryRequest request);
+    String save(CategoryRequest request);
 
-    Category update(Long id, CategoryRequest request);
+    String update(Long id, CategoryRequest request);
 
     String delete(Long id);
 

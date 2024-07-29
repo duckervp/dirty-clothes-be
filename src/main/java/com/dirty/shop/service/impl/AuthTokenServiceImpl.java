@@ -43,7 +43,7 @@ public class AuthTokenServiceImpl implements AuthTokenService {
     public String createAccessToken(User user) {
         String value = AuthTokenUtils.createAccessToken(
             user.getId(),
-            user.getUserInfo(),
+            User.getUserInfo(user),
             authProperty.getAccessTokenExpirationMils(),
             authProperty.getTokenSecret());
         Instant expiredAt = DateTimeUtils.getCurrentInstantMilliseconds().plusMillis(
@@ -57,7 +57,7 @@ public class AuthTokenServiceImpl implements AuthTokenService {
     public String createAccessToken(User user, long expireMils) {
         String value = AuthTokenUtils.createAccessToken(
             user.getId(),
-            user.getUserInfo(),
+            User.getUserInfo(user),
             expireMils,
             authProperty.getTokenSecret());
         Instant expiredAt = DateTimeUtils.getCurrentInstantMilliseconds().plusMillis(
