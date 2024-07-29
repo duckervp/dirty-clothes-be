@@ -20,6 +20,8 @@ public class Order extends BaseModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long userId;
+
     private String code;
 
     @Enumerated(EnumType.STRING)

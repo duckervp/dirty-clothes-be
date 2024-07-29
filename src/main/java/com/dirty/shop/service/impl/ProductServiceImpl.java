@@ -166,7 +166,7 @@ public class ProductServiceImpl implements ProductService {
         products.forEach(item -> item.setDeleted(true));
         productRepository.saveAll(products);
 
-        List<ProductDetail> productDetailList = productDetailRepository.findByProductId(ids);
+        List<ProductDetail> productDetailList = productDetailRepository.findByProductIdIn(ids);
         productDetailList.forEach(item -> item.setDeleted(true));
         productDetailRepository.saveAll(productDetailList);
 

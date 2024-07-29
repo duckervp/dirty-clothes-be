@@ -1,5 +1,6 @@
 package com.dirty.shop.repository;
 
+import com.dirty.shop.dto.projection.ProductDetailProjection;
 import com.dirty.shop.enums.Size;
 import com.dirty.shop.model.Category;
 import com.dirty.shop.model.ProductDetail;
@@ -17,4 +18,17 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, Lo
 
     @Query("SELECT pd.productId FROM ProductDetail pd WHERE pd.productId IN (:productIds) AND pd.size IN (:sizes)")
     List<Long> findProductBySize(List<Long> productIds, List<Size> sizes);
+
+    @Query("""
+            SELECT
+                pd.id AS productDetailId,
+                p.name AS productName,
+                p.price AS productPrice,
+                p.avatarUrl AS avatarUrl
+            FROM ProductDetail pd JOIN Product p ON pd.productId = p.id
+            WHERE pd.id IN :productDetailIds
+            """)
+    List<ProductDetailProjection> findProductDetailByIdIn(List<Long> productDetailIds);
+
+    List<ProductDetail> findByIdIn(List<Long> productDetailIds);
 }
