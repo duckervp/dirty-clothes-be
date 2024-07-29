@@ -25,7 +25,7 @@ public class AuthTokenUtils {
         Date expiryDate = new Date(now.getTime() + accessTokenExpireMils);
         return Jwts.builder()
                 .setSubject(Long.toString(memberId))
-                .setClaims(Map.of("user", SerializeUtils.toJson(user.getUserInfo())))
+                .setClaims(Map.of("user", SerializeUtils.toJson(User.getUserInfo(user))))
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(tokenSecret), SignatureAlgorithm.HS256)

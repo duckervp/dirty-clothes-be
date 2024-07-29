@@ -8,11 +8,11 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface ColorService {
-    Color save(ColorRequest request);
+    String save(ColorRequest request);
 
     Page<Color> findAll(FindColorRequest request);
 
-    Color update(Long id, ColorRequest request);
+    String update(Long id, ColorRequest request);
 
     String delete(Long id);
 

@@ -3,10 +3,14 @@ package com.dirty.shop.service.impl;
 import com.dirty.shop.dto.request.AddressRequest;
 import com.dirty.shop.dto.request.FindAddressRequest;
 import com.dirty.shop.model.Address;
+import com.dirty.shop.repository.AddressRepository;
 import com.dirty.shop.service.AddressService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,33 +19,65 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class AddressServiceImpl implements AddressService {
+
+    private final AddressRepository addressRepository;
+
     @Override
-    public Address save(AddressRequest request) {
-        return null;
+    public String save(AddressRequest request) {
+        Address address = Address.builder()
+                .userId(request.getUserId())
+                .detailAddress(request.getDetailAddress())
+                .phone(request.getPhone())
+                .postalCode(request.getPostalCode())
+                .note(request.getNote())
+                .name(request.getName())
+                .build();
+
+        addressRepository.save(address);
+        return "Save address successful";
     }
 
     @Override
     public Page<Address> findAll(FindAddressRequest request) {
-        return null;
+        Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
+        Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(),sort);
+        return addressRepository.findAddress(request.getUserId() ,pageable);
     }
 
     @Override
-    public Address update(Long id, AddressRequest request) {
-        return null;
+    public String update(Long id, AddressRequest request) {
+        Address address = addressRepository.findById(id).orElseThrow();
+        address.setUserId(request.getUserId());
+        address.setDetailAddress(request.getDetailAddress());
+        address.setPhone(request.getPhone());
+        address.setPostalCode(request.getPostalCode());
+        address.setName(request.getName());
+        address.setNote(request.getNote());
+
+        addressRepository.save(address);
+        return "Update address successful";
     }
 
     @Override
     public String delete(Long id) {
-        return "";
+        Address address = addressRepository.findById(id).orElseThrow();
+        address.setDeleted(true);
+
+        addressRepository.save(address);
+        return "Delete address successful";
     }
 
     @Override
     public String delete(List<Long> ids) {
-        return "";
+        List<Address> addresses = addressRepository.findAllById(ids);
+        addresses.forEach(e -> e.setDeleted(true));
+
+        addressRepository.saveAll(addresses);
+        return "Delete list addresses successful";
     }
 
     @Override
     public Address findById(Long id) {
-        return null;
+        return addressRepository.findById(id).orElseThrow();
     }
 }
