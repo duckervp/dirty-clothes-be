@@ -4,7 +4,8 @@ import com.dirty.shop.base.Response;
 import com.dirty.shop.base.WebConstants;
 import com.dirty.shop.dto.request.ProductRequest;
 import com.dirty.shop.dto.request.FindProductRequest;
-import com.dirty.shop.model.Product;
+import com.dirty.shop.dto.response.DetailedProductResponse;
+import com.dirty.shop.dto.response.ProductResponse;
 import com.dirty.shop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,24 +22,24 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping()
-    public ResponseEntity<Response<Page<Product>>> getAllProducts(FindProductRequest request) {
+    public ResponseEntity<Response<Page<ProductResponse>>> getAllProducts(FindProductRequest request) {
         return ResponseEntity.ok(Response.success(productService.findAll(request)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Response<Product>> getProduct(@PathVariable Long id) {
+    public ResponseEntity<Response<DetailedProductResponse>> getProduct(@PathVariable Long id) {
         return ResponseEntity.ok(Response.success(productService.findById(id)));
     }
 
     @PostMapping()
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response<Product>> save(@RequestBody ProductRequest request) {
+    public ResponseEntity<Response<String>> save(@RequestBody ProductRequest request) {
         return ResponseEntity.ok(Response.success(productService.save(request)));
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response<Product>> update(@PathVariable Long id, @RequestBody ProductRequest request) {
+    public ResponseEntity<Response<String>> update(@PathVariable Long id, @RequestBody ProductRequest request) {
         return ResponseEntity.ok(Response.success(productService.update(id, request)));
     }
 

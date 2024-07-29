@@ -1,8 +1,11 @@
 package com.dirty.shop.dto.request;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class PageRequest {
     private Integer pageNo = 0;
 

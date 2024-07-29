@@ -1,6 +1,5 @@
 package com.dirty.shop.dto.request;
 
-import com.dirty.shop.enums.ProductTarget;
 import lombok.*;
 
 @Builder
@@ -9,6 +8,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductImageRequest {
+    private Long id;
+
     private Long colorId;
 
     private String imageUrl;

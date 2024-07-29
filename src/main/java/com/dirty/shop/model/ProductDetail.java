@@ -21,6 +21,8 @@ public class ProductDetail extends BaseModel {
 
     private Long productId;
 
+    private Long colorId;
+
     @Enumerated(EnumType.STRING)
     private Size size;
 
