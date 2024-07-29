@@ -6,9 +6,9 @@ import com.dirty.shop.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -21,8 +21,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(Response.with(e.getErrorCode()));
     }
 
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<Response<Void>> handleAuthorizationDeniedException(AuthorizationDeniedException e) {
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Response<Void>> handleAccessDeniedException(AccessDeniedException e) {
         log.error("Error: ", e);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Response.with(AuthApiCode.PERMISSION_DENIED));
     }

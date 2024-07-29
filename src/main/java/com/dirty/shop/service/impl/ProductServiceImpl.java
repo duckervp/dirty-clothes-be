@@ -166,7 +166,7 @@ public class ProductServiceImpl implements ProductService {
         products.forEach(item -> item.setDeleted(true));
         productRepository.saveAll(products);
 
-        List<ProductDetail> productDetailList = productDetailRepository.findByProductId(ids);
+        List<ProductDetail> productDetailList = productDetailRepository.findByProductIdIn(ids);
         productDetailList.forEach(item -> item.setDeleted(true));
         productDetailRepository.saveAll(productDetailList);
 
@@ -216,6 +216,7 @@ public class ProductServiceImpl implements ProductService {
         for (ProductDetailRequest pdRequest : request.getProductDetails()) {
             ProductDetail productDetail = ProductDetail.builder()
                     .productId(product.getId())
+                    .colorId(pdRequest.getColorId())
                     .size(pdRequest.getSize())
                     .inventory(pdRequest.getInventory())
                     .sold(pdRequest.getSold())
@@ -234,6 +235,7 @@ public class ProductServiceImpl implements ProductService {
                 .target(request.getTarget())
                 .status(request.getStatus())
                 .categoryIds(StringUtils.collectionToCommaDelimitedString(request.getCategoryIds()))
+                .avatarUrl(request.getAvatarUrl())
                 .build();
 
         productRepository.save(product);

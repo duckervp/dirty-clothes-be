@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface ColorRepository extends JpaRepository<Color, Long> {
     @Query("""
-        SELECT
+        SELECT DISTINCT
             pi.productId AS productId,
             c.id AS id,
             c.name AS name,

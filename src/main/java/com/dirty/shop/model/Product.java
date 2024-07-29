@@ -3,7 +3,6 @@ package com.dirty.shop.model;
 import com.dirty.shop.base.BaseModel;
 import com.dirty.shop.enums.ProductStatus;
 import com.dirty.shop.enums.ProductTarget;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
@@ -23,6 +22,7 @@ public class Product extends BaseModel {
 
     private String name;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Enumerated(EnumType.STRING)
