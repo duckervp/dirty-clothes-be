@@ -17,8 +17,8 @@ public class ProductImage extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private Long productDetailId;
+    
+    private Long productId;
 
     private Long colorId;
 

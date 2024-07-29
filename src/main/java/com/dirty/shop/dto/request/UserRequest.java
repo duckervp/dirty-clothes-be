@@ -18,4 +18,6 @@ public class UserRequest {
     private Role role;
 
     private Boolean status;
+
+    private String avatarUrl;
 }

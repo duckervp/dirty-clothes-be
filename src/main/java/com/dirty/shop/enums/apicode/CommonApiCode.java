@@ -16,10 +16,7 @@ public enum CommonApiCode implements ApiCode {
     FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Not found record"),
     INVALID_QUERY(405, "Invalid sql query"),
-    REQUIRED_BRAND_ID(406, "Required brand info"),
     DUPLICATED_RECORD(407, "Duplicated record"),
-    CANNOT_ACQUIRE_LOCK(408, "Cannot acquire lock"),
-    BRAND_ID_NOT_FOUND(409, "Brand Id not found")
     ;
 
     private final Integer code;

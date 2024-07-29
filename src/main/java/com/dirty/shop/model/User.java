@@ -38,6 +38,8 @@ public class User extends BaseModel implements UserDetails {
 
     private Boolean status;
 
+    private String avatarUrl;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

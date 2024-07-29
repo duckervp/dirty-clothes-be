@@ -11,11 +11,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductDetailRequest {
+    private Long id;
+
+    private Long colorId;
+
     private Size size;
 
     private Long inventory;
 
     private Long sold;
-
-    private List<ProductImageRequest> images;
 }

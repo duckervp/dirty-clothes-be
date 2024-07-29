@@ -2,19 +2,21 @@ package com.dirty.shop.service;
 
 import com.dirty.shop.dto.request.FindProductRequest;
 import com.dirty.shop.dto.request.ProductRequest;
+import com.dirty.shop.dto.response.DetailedProductResponse;
+import com.dirty.shop.dto.response.ProductResponse;
 import com.dirty.shop.model.Product;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface ProductService {
-    Page<Product> findAll(FindProductRequest request);
+    Page<ProductResponse> findAll(FindProductRequest request);
 
-    Product findById(Long id);
+    DetailedProductResponse findById(Long id);
 
-    Product save(ProductRequest request);
+    String save(ProductRequest request);
 
-    Product update(Long id, ProductRequest request);
+    String update(Long id, ProductRequest request);
 
     String delete(Long id);
 
