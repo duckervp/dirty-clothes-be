@@ -12,7 +12,7 @@ public class ProductDetailResponse {
 
     private Long colorId;
 
-    private Size size;
+    private String size;
 
     private Long inventory;
 
@@ -22,7 +22,7 @@ public class ProductDetailResponse {
         return ProductDetailResponse.builder()
                 .id(productDetail.getId())
                 .colorId(productDetail.getColorId())
-                .size(productDetail.getSize())
+                .size(productDetail.getSize().getValue())
                 .inventory(productDetail.getInventory())
                 .sold(productDetail.getSold())
                 .build();

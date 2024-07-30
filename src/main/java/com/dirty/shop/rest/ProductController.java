@@ -54,4 +54,9 @@ public class ProductController {
     public ResponseEntity<Response<String>> delete(@PathVariable List<Long> ids) {
         return ResponseEntity.ok(Response.success(productService.delete(ids)));
     }
+
+    @GetMapping("/{slug}/detail")
+    public ResponseEntity<Response<DetailedProductResponse>> getProductBySlug(@PathVariable String slug) {
+        return ResponseEntity.ok(Response.success(productService.findBySlug(slug)));
+    }
 }

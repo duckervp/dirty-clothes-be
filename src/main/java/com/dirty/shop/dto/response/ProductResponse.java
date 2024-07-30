@@ -12,15 +12,21 @@ import java.util.List;
 @Data
 @Builder
 public class ProductResponse {
+    private Long id;
+
     private String name;
 
     private ProductStatus status;
 
     private Double price;
 
+    private Double salePrice;
+
     private List<Color> colors;
 
     private String avatarUrl;
+
+    private String slug;
 
     public static ProductResponse from(Product product, List<ColorProjection> colorProjections) {
         List<Color> colors = colorProjections.stream()
@@ -31,11 +37,14 @@ public class ProductResponse {
                         .build()).toList();
 
         return ProductResponse.builder()
+                .id(product.getId())
                 .name(product.getName())
                 .price(product.getPrice())
                 .status(product.getStatus())
                 .avatarUrl(product.getAvatarUrl())
                 .colors(colors)
+                .salePrice(product.getSalePrice())
+                .slug(product.getSlug())
                 .build();
     }
 }

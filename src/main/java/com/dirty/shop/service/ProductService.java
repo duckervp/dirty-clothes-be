@@ -21,4 +21,6 @@ public interface ProductService {
     String delete(Long id);
 
     String delete(List<Long> ids);
+
+    DetailedProductResponse findBySlug(String slug);
 }

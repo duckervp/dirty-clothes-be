@@ -21,6 +21,8 @@ public class DetailedProductResponse {
 
     private Double price;
 
+    private Double salePrice;
+
     private List<Category> categories;
 
     private List<ProductDetailResponse> productDetails;

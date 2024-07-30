@@ -24,6 +24,8 @@ public class ProductRequest {
 
     private Double price;
 
+    private Double salePrice;
+
     private List<Long> categoryIds;
 
     List<ProductDetailRequest> productDetails;

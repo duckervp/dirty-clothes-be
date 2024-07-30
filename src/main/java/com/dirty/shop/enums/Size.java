@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Size {
+    FREE_SIZE("Free Size"),
     SIZE_S("Size S"),
     SIZE_M("Size M"),
     SIZE_L("Size L"),

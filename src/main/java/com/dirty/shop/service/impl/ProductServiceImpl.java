@@ -25,7 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.text.Normalizer;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -87,30 +89,15 @@ public class ProductServiceImpl implements ProductService {
     public DetailedProductResponse findById(Long id) {
         Product product = findProductById(id);
 
-        List<Long> categoryIds = StringUtils.commaDelimitedListToSet(product.getCategoryIds())
-                .stream().map(Long::parseLong).toList();
+        return findDetailedProduct(product);
+    }
 
-        List<Category> categoryList = categoryRepository.findAllById(categoryIds);
+    @Override
+    public DetailedProductResponse findBySlug(String slug) {
+        Product product = productRepository.findBySlug(slug)
+                .orElseThrow(() -> new ApiException(ProductApiCode.PRODUCT_NOT_FOUND));
 
-        List<ProductDetailResponse> productDetailResponseList = productDetailRepository.findByProductId(product.getId())
-                .stream().map(ProductDetailResponse::from).toList();
-
-        List<Color> productColors = colorRepository.findColorByProductId(product.getId());
-        Map<Long, Color> mapColorById = StreamUtils.toMap(productColors, Color::getId);
-
-        List<ProductImageResponse> productImageResponseList = productImageRepository.findByProductId(product.getId())
-                .stream().map(item -> ProductImageResponse.from(item, mapColorById.get(item.getColorId()))).toList();
-
-        return DetailedProductResponse.builder()
-                .name(product.getName())
-                .description(product.getDescription())
-                .status(product.getStatus())
-                .price(product.getPrice())
-                .target(product.getTarget())
-                .productDetails(productDetailResponseList)
-                .images(productImageResponseList)
-                .categories(categoryList)
-                .build();
+        return findDetailedProduct(product);
     }
 
     @Override
@@ -180,6 +167,34 @@ public class ProductServiceImpl implements ProductService {
 
     /* ===============Private=============== */
 
+    private DetailedProductResponse findDetailedProduct(Product product) {
+        List<Long> categoryIds = StringUtils.commaDelimitedListToSet(product.getCategoryIds())
+                .stream().map(Long::parseLong).toList();
+
+        List<Category> categoryList = categoryRepository.findAllById(categoryIds);
+
+        List<ProductDetailResponse> productDetailResponseList = productDetailRepository.findByProductId(product.getId())
+                .stream().map(ProductDetailResponse::from).toList();
+
+        List<Color> productColors = colorRepository.findColorByProductId(product.getId());
+        Map<Long, Color> mapColorById = StreamUtils.toMap(productColors, Color::getId);
+
+        List<ProductImageResponse> productImageResponseList = productImageRepository.findByProductId(product.getId())
+                .stream().map(item -> ProductImageResponse.from(item, mapColorById.get(item.getColorId()))).toList();
+
+        return DetailedProductResponse.builder()
+                .name(product.getName())
+                .description(product.getDescription())
+                .status(product.getStatus())
+                .price(product.getPrice())
+                .target(product.getTarget())
+                .productDetails(productDetailResponseList)
+                .images(productImageResponseList)
+                .categories(categoryList)
+                .salePrice(product.getSalePrice())
+                .build();
+    }
+
     private Product saveProduct(Long id, ProductRequest request) {
         Product product = findProductById(id);
         product.setName(request.getName());
@@ -188,6 +203,8 @@ public class ProductServiceImpl implements ProductService {
         product.setTarget(request.getTarget());
         product.setStatus(request.getStatus());
         product.setCategoryIds(StringUtils.collectionToCommaDelimitedString(request.getCategoryIds()));
+        product.setSalePrice(request.getSalePrice());
+        product.setSlug(genSlug(request.getName()));
         productRepository.save(product);
         return product;
     }
@@ -236,6 +253,8 @@ public class ProductServiceImpl implements ProductService {
                 .status(request.getStatus())
                 .categoryIds(StringUtils.collectionToCommaDelimitedString(request.getCategoryIds()))
                 .avatarUrl(request.getAvatarUrl())
+                .slug(genSlug(request.getName()))
+                .salePrice(request.getSalePrice())
                 .build();
 
         productRepository.save(product);
@@ -315,6 +334,16 @@ public class ProductServiceImpl implements ProductService {
         }
 
         productImageRepository.saveAll(productImageList);
+    }
+
+    private static String deAccent(String str) {
+        String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(nfdNormalizedString).replaceAll("");
+    }
+
+    public static String genSlug(String text) {
+        return String.join("-", deAccent(text).toLowerCase().split("\\s+"));
     }
     
 }

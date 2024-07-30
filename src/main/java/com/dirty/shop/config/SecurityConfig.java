@@ -5,6 +5,7 @@ import com.dirty.shop.service.security.CustomUserDetailsService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -52,6 +53,10 @@ public class SecurityConfig {
             "/actuator/**"
     };
 
+    private static final String[] METHOD_GET_PERMIT_ALL_URLS = new String[]{
+            etc(WebConstants.API_PRODUCT_PREFIX_V1),
+    };
+
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -82,6 +87,8 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PERMIT_ALL_URLS)
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, METHOD_GET_PERMIT_ALL_URLS)
                         .permitAll()
                         .anyRequest()
                         .authenticated())

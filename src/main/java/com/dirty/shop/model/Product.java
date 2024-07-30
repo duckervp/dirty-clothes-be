@@ -33,8 +33,12 @@ public class Product extends BaseModel {
 
     private Double price;
 
+    private Double salePrice;
+
     private String categoryIds; // comma separated category id
 
     private String avatarUrl;
+
+    private String slug;
 
 }
