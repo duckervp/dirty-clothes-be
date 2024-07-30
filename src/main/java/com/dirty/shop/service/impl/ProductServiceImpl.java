@@ -183,6 +183,7 @@ public class ProductServiceImpl implements ProductService {
                 .stream().map(item -> ProductImageResponse.from(item, mapColorById.get(item.getColorId()))).toList();
 
         return DetailedProductResponse.builder()
+                .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
                 .status(product.getStatus())
