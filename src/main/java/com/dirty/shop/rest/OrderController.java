@@ -4,6 +4,7 @@ import com.dirty.shop.base.Response;
 import com.dirty.shop.base.WebConstants;
 import com.dirty.shop.dto.request.FindOrderRequest;
 import com.dirty.shop.dto.request.OrderRequest;
+import com.dirty.shop.dto.response.OrderDetailResponse;
 import com.dirty.shop.model.Order;
 import com.dirty.shop.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +30,18 @@ public class OrderController {
         return ResponseEntity.ok(Response.success(orderService.findById(id)));
     }
 
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<Response<List<OrderDetailResponse>>> getOrderDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(Response.success(orderService.findDetailById(id)));
+    }
+
     @PostMapping()
-    public ResponseEntity<Response<Order>> save(@RequestBody OrderRequest request) {
+    public ResponseEntity<Response<String>> save(@RequestBody OrderRequest request) {
         return ResponseEntity.ok(Response.success(orderService.save(request)));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Response<Order>> update(@PathVariable Long id, @RequestBody OrderRequest request) {
+    public ResponseEntity<Response<String>> update(@PathVariable Long id, @RequestBody OrderRequest request) {
         return ResponseEntity.ok(Response.success(orderService.update(id, request)));
     }
 
