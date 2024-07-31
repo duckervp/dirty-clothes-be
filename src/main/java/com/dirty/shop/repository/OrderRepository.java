@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -19,14 +21,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                 o.code,
                 o.status,
                 o.paymentMethod,
-                a,
                 o.reason,
                 o.shippingFee
             )
             FROM Order o
-            LEFT JOIN Address a ON o.shippingAddressId = a.detailAddress
             WHERE (:#{#request.code} IS NULL OR o.code = :#{#request.code})
-            AND (:#{#request.status} IS NULL OR o.status = :#{#request.code})
+            AND (:#{#request.status} IS NULL OR o.status = :#{#request.status})
             """)
     Page<OrderResponse> findOrder(FindOrderRequest request, Pageable pageable);
+
+    Optional<Order> findByCode(String code);
 }

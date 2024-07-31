@@ -27,13 +27,13 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Response<Order>> getOrder(@PathVariable Long id) {
-        return ResponseEntity.ok(Response.success(orderService.findById(id)));
+    public ResponseEntity<Response<OrderDetailResponse>> getOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(Response.success(orderService.findDetailById(id)));
     }
 
-    @GetMapping("/detail/{id}")
-    public ResponseEntity<Response<List<OrderDetailResponse>>> getOrderDetail(@PathVariable Long id) {
-        return ResponseEntity.ok(Response.success(orderService.findDetailById(id)));
+    @GetMapping("/{code}/detail")
+    public ResponseEntity<Response<OrderDetailResponse>> getOrderByCode(@PathVariable String code) {
+        return ResponseEntity.ok(Response.success(orderService.findDetailByCode(code)));
     }
 
     @PostMapping()

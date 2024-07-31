@@ -12,7 +12,9 @@ import java.util.List;
 public interface OrderService {
     Page<OrderResponse> findAll(FindOrderRequest request);
 
-    List<OrderDetailResponse> findDetailById(Long id);
+    OrderDetailResponse findDetailById(Long id);
+
+    OrderDetailResponse findDetailByCode(String code);
 
     String save(OrderRequest request);
 

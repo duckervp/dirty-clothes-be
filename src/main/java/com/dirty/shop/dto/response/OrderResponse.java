@@ -3,13 +3,17 @@ package com.dirty.shop.dto.response;
 import com.dirty.shop.enums.OrderStatus;
 import com.dirty.shop.enums.PaymentMethod;
 import com.dirty.shop.model.Address;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderResponse {
     private Long id;
 
@@ -19,8 +23,6 @@ public class OrderResponse {
 
     private PaymentMethod paymentMethod;
 
-    private Address address;
-
     private String reason;
 
     private Double shippingFee;
@@ -29,12 +31,11 @@ public class OrderResponse {
 
     OrderItemResponse firstItem;
 
-    public OrderResponse(Long id, String code, OrderStatus status, PaymentMethod paymentMethod, Address address, String reason, Double shippingFee, Double total) {
+    public OrderResponse(Long id, String code, OrderStatus status, PaymentMethod paymentMethod, String reason, Double shippingFee, Double total) {
         this.id = id;
         this.code = code;
         this.status = status;
         this.paymentMethod = paymentMethod;
-        this.address = address;
         this.reason = reason;
         this.shippingFee = shippingFee;
         this.total = total;

@@ -9,6 +9,8 @@ import com.dirty.shop.dto.response.OrderItemResponse;
 import com.dirty.shop.dto.response.OrderResponse;
 import com.dirty.shop.enums.OrderStatus;
 import com.dirty.shop.enums.PaymentMethod;
+import com.dirty.shop.enums.apicode.OrderApiCode;
+import com.dirty.shop.exception.ApiException;
 import com.dirty.shop.model.*;
 import com.dirty.shop.repository.AddressRepository;
 import com.dirty.shop.repository.OrderDetailRepository;
@@ -45,13 +47,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<OrderResponse> findAll(FindOrderRequest request) {
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
-        Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(),sort);
+        Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(), sort);
         Page<OrderResponse> page = orderRepository.findOrder(request, pageable);
         List<Long> orderIds = page.getContent().stream().map(OrderResponse::getId).toList();
         List<OrderItemResponse> orderItemResponses = orderDetailRepository.findOrderItemResponse(orderIds);
         Map<Long, OrderItemResponse> mapOrderItemToOrderId = new HashMap<>();
-        for (OrderItemResponse orderItemResponse : orderItemResponses){
-            if (!mapOrderItemToOrderId.containsKey(orderItemResponse.getOrderId())){
+        for (OrderItemResponse orderItemResponse : orderItemResponses) {
+            if (!mapOrderItemToOrderId.containsKey(orderItemResponse.getOrderId())) {
                 mapOrderItemToOrderId.put(orderItemResponse.getOrderId(), orderItemResponse);
             }
         }
@@ -62,32 +64,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDetailResponse findDetailById(Long id) {
-        Order order = orderRepository.findById(id).orElseThrow();
-        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(id);
-        Map<Long, OrderDetail> mapOrderDetailToProductDetailId = StreamUtils.toMap(orderDetails, OrderDetail::getProductDetailId);
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ApiException(OrderApiCode.ORDER_NOT_FOUND));
+        return getOrderDetailResponse(order);
+    }
 
-        List<ProductDetailProjection> productDetails = productDetailRepository.findProductDetailByIdIn(mapOrderDetailToProductDetailId.keySet().stream().toList());
-        OrderDetailResponse orderDetailResponses = OrderDetailResponse.builder().build();
-        List<OrderItemResponse> orderItemResponses = new ArrayList<>();
-        for (ProductDetailProjection productDetail : productDetails){
-            OrderDetail orderDetail = mapOrderDetailToProductDetailId.get(productDetail.getProductDetailId());
-
-            if (Objects.nonNull(orderDetail)){
-                OrderItemResponse orderDetailResponse = OrderItemResponse.builder()
-                        .orderId(orderDetail.getOrderId())
-                        .productName(productDetail.getProductName())
-                        .price(orderDetail.getPrice())
-                        .quantity(orderDetail.getQuantity())
-                        .color(productDetail.getProductColor())
-                        .imageUrl(productDetail.getImageUrl())
-                        .build();
-
-                orderItemResponses.add(orderDetailResponse);
-            }
-        }
-
-        //set list product
-        return orderDetailResponses;
+    @Override
+    public OrderDetailResponse findDetailByCode(String code) {
+        Order order = orderRepository.findByCode(code).orElseThrow(() -> new ApiException(OrderApiCode.ORDER_NOT_FOUND));
+        return getOrderDetailResponse(order);
     }
 
     @Override
@@ -95,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Address address;
-        if (Objects.isNull(request.getShippingAddressId())){
+        if (Objects.isNull(request.getShippingAddressId())) {
             address = Address.builder()
                     .userId(userPrincipal.getId())
                     .phone(request.getPhone())
@@ -117,10 +101,10 @@ public class OrderServiceImpl implements OrderService {
         Map<Long, ProductDetail> mapProductDetailToId = StreamUtils.toMap(productDetails, ProductDetail::getId);
 
         List<OrderDetailRequest> validOrderDetailRequest = new ArrayList<>();
-        for (OrderDetailRequest orderDetailRequest : request.getOrderDetails()){
+        for (OrderDetailRequest orderDetailRequest : request.getOrderDetails()) {
             ProductDetail productDetail = mapProductDetailToId.get(orderDetailRequest.getProductDetailId());
-            if (Objects.nonNull(productDetail)){
-                if (productDetail.getInventory() >= orderDetailRequest.getQuantity()){
+            if (Objects.nonNull(productDetail)) {
+                if (productDetail.getInventory() >= orderDetailRequest.getQuantity()) {
                     validOrderDetailRequest.add(orderDetailRequest);
                 }
             }
@@ -138,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
 
         List<OrderDetail> orderDetails = new ArrayList<>();
-        for (OrderDetailRequest orderDetailRequest : validOrderDetailRequest){
+        for (OrderDetailRequest orderDetailRequest : validOrderDetailRequest) {
             OrderDetail orderDetail = OrderDetail.builder()
                     .orderId(order.getId())
                     .productDetailId(orderDetailRequest.getProductDetailId())
@@ -162,7 +146,7 @@ public class OrderServiceImpl implements OrderService {
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Address address;
-        if (Objects.isNull(request.getShippingAddressId())){
+        if (Objects.isNull(request.getShippingAddressId())) {
             address = Address.builder()
                     .userId(userPrincipal.getId())
                     .phone(request.getPhone())
@@ -190,11 +174,11 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(order.getId());
         Map<Long, OrderDetail> mapOrderDetailToProductDetail = StreamUtils.toMap(orderDetails, OrderDetail::getProductDetailId);
 
-        for (OrderDetailRequest orderDetailRequest : request.getOrderDetails()){
+        for (OrderDetailRequest orderDetailRequest : request.getOrderDetails()) {
             ProductDetail productDetail = mapProductDetailToId.get(orderDetailRequest.getProductDetailId());
             OrderDetail orderDetail = mapOrderDetailToProductDetail.get(orderDetailRequest.getProductDetailId());
-            if (Objects.nonNull(productDetail) && Objects.nonNull(orderDetail)){
-                if ((orderDetailRequest.getQuantity() - orderDetail.getQuantity()) < productDetail.getInventory() ){
+            if (Objects.nonNull(productDetail) && Objects.nonNull(orderDetail)) {
+                if ((orderDetailRequest.getQuantity() - orderDetail.getQuantity()) < productDetail.getInventory()) {
                     continue;
                 }
 
@@ -238,5 +222,41 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order findById(Long id) {
         return orderRepository.findById(id).orElseThrow();
+    }
+
+    private OrderDetailResponse getOrderDetailResponse(Order order) {
+        Address address = addressRepository.findById(order.getShippingAddressId()).orElseThrow();
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(order.getId());
+        Map<Long, OrderDetail> mapOrderDetailToProductDetailId = StreamUtils.toMap(orderDetails, OrderDetail::getProductDetailId);
+
+        List<ProductDetailProjection> productDetails = productDetailRepository.findProductDetailByIdIn(mapOrderDetailToProductDetailId.keySet().stream().toList());
+        List<OrderItemResponse> orderItemResponses = new ArrayList<>();
+        for (ProductDetailProjection productDetail : productDetails) {
+            OrderDetail orderDetail = mapOrderDetailToProductDetailId.get(productDetail.getProductDetailId());
+
+            if (Objects.nonNull(orderDetail)) {
+                OrderItemResponse orderItemResponse = OrderItemResponse.builder()
+                        .productName(productDetail.getProductName())
+                        .price(orderDetail.getPrice())
+                        .quantity(orderDetail.getQuantity())
+                        .color(productDetail.getProductColor())
+                        .imageUrl(productDetail.getImageUrl())
+                        .build();
+
+                orderItemResponses.add(orderItemResponse);
+            }
+        }
+
+        return OrderDetailResponse.builder()
+                .id(order.getId())
+                .code(order.getCode())
+                .status(order.getStatus())
+                .total(order.getTotal())
+                .shippingFee(order.getShippingFee())
+                .paymentMethod(order.getPaymentMethod())
+                .reason(order.getReason())
+                .orderItems(orderItemResponses)
+                .address(address)
+                .build();
     }
 }
