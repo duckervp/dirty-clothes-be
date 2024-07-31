@@ -5,6 +5,7 @@ import com.dirty.shop.base.WebConstants;
 import com.dirty.shop.dto.request.FindOrderRequest;
 import com.dirty.shop.dto.request.OrderRequest;
 import com.dirty.shop.dto.response.OrderDetailResponse;
+import com.dirty.shop.dto.response.OrderResponse;
 import com.dirty.shop.model.Order;
 import com.dirty.shop.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping()
-    public ResponseEntity<Response<Page<Order>>> getAllOrders(FindOrderRequest request) {
+    public ResponseEntity<Response<Page<OrderResponse>>> getAllOrders(FindOrderRequest request) {
         return ResponseEntity.ok(Response.success(orderService.findAll(request)));
     }
 

@@ -1,6 +1,5 @@
 package com.dirty.shop.dto.response;
 
-import com.dirty.shop.enums.Size;
 import com.dirty.shop.model.ProductDetail;
 import lombok.Builder;
 import lombok.Data;

@@ -5,6 +5,7 @@ import com.dirty.shop.dto.request.OrderDetailRequest;
 import com.dirty.shop.dto.request.OrderRequest;
 import com.dirty.shop.dto.request.FindOrderRequest;
 import com.dirty.shop.dto.response.OrderDetailResponse;
+import com.dirty.shop.dto.response.OrderResponse;
 import com.dirty.shop.enums.OrderStatus;
 import com.dirty.shop.enums.PaymentMethod;
 import com.dirty.shop.model.*;
@@ -41,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
     private final AddressRepository addressRepository;
 
     @Override
-    public Page<Order> findAll(FindOrderRequest request) {
+    public Page<OrderResponse> findAll(FindOrderRequest request) {
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
         Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(),sort);
 
@@ -87,6 +88,7 @@ public class OrderServiceImpl implements OrderService {
                     .name(request.getReceiverName())
                     .detailAddress(request.getShippingAddress())
                     .postalCode(request.getPostalCode())
+                    .shippingInfo(request.getShippingInfo())
                     .build();
 
             addressRepository.save(address);
@@ -115,6 +117,8 @@ public class OrderServiceImpl implements OrderService {
                 .status(OrderStatus.ORDER)
                 .paymentMethod(PaymentMethod.CASH_ON_DELIVERY)
                 .shippingAddressId(address.getId())
+                .shippingFee(request.getShippingFee())
+                .total(request.getTotal())
                 .build();
         orderRepository.save(order);
 

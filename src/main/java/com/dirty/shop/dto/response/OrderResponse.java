@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class OrderDetailResponse {
+public class OrderResponse {
     private Long id;
 
     private String code;
@@ -27,5 +27,5 @@ public class OrderDetailResponse {
 
     private Double total;
 
-    List<OrderItemResponse> orderItems;
+    OrderItemResponse firstItem;
 }

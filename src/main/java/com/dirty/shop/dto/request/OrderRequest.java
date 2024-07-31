@@ -1,6 +1,7 @@
 package com.dirty.shop.dto.request;
 
 import com.dirty.shop.enums.OrderStatus;
+import com.dirty.shop.enums.PaymentMethod;
 import lombok.*;
 
 import java.util.List;
@@ -25,5 +26,14 @@ public class OrderRequest {
 
     private Long postalCode;
 
+    private String shippingInfo;
+
     List<OrderDetailRequest> orderDetails;
+
+    private Double shippingFee;
+
+    private Double total;
+
+    private PaymentMethod paymentMethod;
 }
+

@@ -29,4 +29,7 @@ public class Address extends BaseModel {
     private String note;
 
     private String name;
+
+    @Column(columnDefinition = "TEXT")
+    private String shippingInfo;
 }

@@ -33,4 +33,8 @@ public class Order extends BaseModel {
     private Long shippingAddressId;
 
     private String reason;
+
+    private Double shippingFee;
+
+    private Double total;
 }

@@ -3,13 +3,14 @@ package com.dirty.shop.service;
 import com.dirty.shop.dto.request.FindOrderRequest;
 import com.dirty.shop.dto.request.OrderRequest;
 import com.dirty.shop.dto.response.OrderDetailResponse;
+import com.dirty.shop.dto.response.OrderResponse;
 import com.dirty.shop.model.Order;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface OrderService {
-    Page<Order> findAll(FindOrderRequest request);
+    Page<OrderResponse> findAll(FindOrderRequest request);
 
     List<OrderDetailResponse> findDetailById(Long id);
 
