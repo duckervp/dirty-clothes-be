@@ -13,13 +13,15 @@ import java.util.List;
 @Data
 @Builder
 public class OrderItemResponse {
+    private Long orderId;
+
     private String productName;
 
-    private Double productPrice;
+    private Double price;
 
-    private Integer productQuantity;
+    private Integer quantity;
 
-    private String productColor; // color value
+    private String color; // color value
 
-    private String productImageUrl;
+    private String imageUrl;
 }

@@ -28,4 +28,15 @@ public class OrderResponse {
     private Double total;
 
     OrderItemResponse firstItem;
+
+    public OrderResponse(Long id, String code, OrderStatus status, PaymentMethod paymentMethod, Address address, String reason, Double shippingFee, Double total) {
+        this.id = id;
+        this.code = code;
+        this.status = status;
+        this.paymentMethod = paymentMethod;
+        this.address = address;
+        this.reason = reason;
+        this.shippingFee = shippingFee;
+        this.total = total;
+    }
 }

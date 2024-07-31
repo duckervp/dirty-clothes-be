@@ -10,4 +10,8 @@ public interface ProductDetailProjection {
     Double getProductPrice();
 
     String getAvatarUrl();
+
+    String getProductColor();
+
+    String getImageUrl();
 }

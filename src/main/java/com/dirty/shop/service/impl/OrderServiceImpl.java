@@ -5,6 +5,7 @@ import com.dirty.shop.dto.request.OrderDetailRequest;
 import com.dirty.shop.dto.request.OrderRequest;
 import com.dirty.shop.dto.request.FindOrderRequest;
 import com.dirty.shop.dto.response.OrderDetailResponse;
+import com.dirty.shop.dto.response.OrderItemResponse;
 import com.dirty.shop.dto.response.OrderResponse;
 import com.dirty.shop.enums.OrderStatus;
 import com.dirty.shop.enums.PaymentMethod;
@@ -45,33 +46,47 @@ public class OrderServiceImpl implements OrderService {
     public Page<OrderResponse> findAll(FindOrderRequest request) {
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
         Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(),sort);
+        Page<OrderResponse> page = orderRepository.findOrder(request, pageable);
+        List<Long> orderIds = page.getContent().stream().map(OrderResponse::getId).toList();
+        List<OrderItemResponse> orderItemResponses = orderDetailRepository.findOrderItemResponse(orderIds);
+        Map<Long, OrderItemResponse> mapOrderItemToOrderId = new HashMap<>();
+        for (OrderItemResponse orderItemResponse : orderItemResponses){
+            if (!mapOrderItemToOrderId.containsKey(orderItemResponse.getOrderId())){
+                mapOrderItemToOrderId.put(orderItemResponse.getOrderId(), orderItemResponse);
+            }
+        }
 
-        return orderRepository.findOrder(request, pageable);
+        page.getContent().forEach(t -> t.setFirstItem(mapOrderItemToOrderId.get(t.getId())));
+        return page;
     }
 
     @Override
-    public List<OrderDetailResponse> findDetailById(Long id) {
+    public OrderDetailResponse findDetailById(Long id) {
         Order order = orderRepository.findById(id).orElseThrow();
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(id);
         Map<Long, OrderDetail> mapOrderDetailToProductDetailId = StreamUtils.toMap(orderDetails, OrderDetail::getProductDetailId);
 
         List<ProductDetailProjection> productDetails = productDetailRepository.findProductDetailByIdIn(mapOrderDetailToProductDetailId.keySet().stream().toList());
-        List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
+        OrderDetailResponse orderDetailResponses = OrderDetailResponse.builder().build();
+        List<OrderItemResponse> orderItemResponses = new ArrayList<>();
         for (ProductDetailProjection productDetail : productDetails){
             OrderDetail orderDetail = mapOrderDetailToProductDetailId.get(productDetail.getProductDetailId());
+
             if (Objects.nonNull(orderDetail)){
-                OrderDetailResponse orderDetailResponse = OrderDetailResponse.builder()
-                        .productDetailId(productDetail.getProductDetailId())
+                OrderItemResponse orderDetailResponse = OrderItemResponse.builder()
+                        .orderId(orderDetail.getOrderId())
                         .productName(productDetail.getProductName())
-                        .productPrice(productDetail.getProductPrice())
-                        .avatarUrl(productDetail.getAvatarUrl())
+                        .price(orderDetail.getPrice())
                         .quantity(orderDetail.getQuantity())
-                        .orderDetailPrice(orderDetail.getPrice())
+                        .color(productDetail.getProductColor())
+                        .imageUrl(productDetail.getImageUrl())
                         .build();
 
-                orderDetailResponses.add(orderDetailResponse);
+                orderItemResponses.add(orderDetailResponse);
             }
         }
+
+        //set list product
         return orderDetailResponses;
     }
 

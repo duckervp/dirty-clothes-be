@@ -1,6 +1,7 @@
 package com.dirty.shop.repository;
 
 import com.dirty.shop.dto.request.FindOrderRequest;
+import com.dirty.shop.dto.response.OrderResponse;
 import com.dirty.shop.model.Order;
 import com.dirty.shop.model.Product;
 import org.springframework.data.domain.Page;
@@ -13,9 +14,19 @@ import org.springframework.stereotype.Repository;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("""
-            SELECT o FROM Order o
+            SELECT NEW com.dirty.shop.dto.response.OrderResponse (
+                o.id,
+                o.code,
+                o.status,
+                o.paymentMethod,
+                a,
+                o.reason,
+                o.shippingFee
+            )
+            FROM Order o
+            LEFT JOIN Address a ON o.shippingAddressId = a.detailAddress
             WHERE (:#{#request.code} IS NULL OR o.code = :#{#request.code})
             AND (:#{#request.status} IS NULL OR o.status = :#{#request.code})
             """)
-    Page<Order> findOrder(FindOrderRequest request, Pageable pageable);
+    Page<OrderResponse> findOrder(FindOrderRequest request, Pageable pageable);
 }

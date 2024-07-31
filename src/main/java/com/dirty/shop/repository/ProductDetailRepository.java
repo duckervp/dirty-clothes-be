@@ -24,8 +24,12 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, Lo
                 pd.id AS productDetailId,
                 p.name AS productName,
                 p.price AS productPrice,
-                p.avatarUrl AS avatarUrl
+                p.avatarUrl AS avatarUrl,
+                c.value AS productColor,
+                pi.imageUrl as imageUrl
             FROM ProductDetail pd JOIN Product p ON pd.productId = p.id
+            LEFT JOIN Color c ON pd.colorId = c.id
+            LEFT JOIN ProductImage pi ON pi.productId = p.id AND pi.colorId = c.id
             WHERE pd.id IN :productDetailIds
             """)
     List<ProductDetailProjection> findProductDetailByIdIn(List<Long> productDetailIds);
