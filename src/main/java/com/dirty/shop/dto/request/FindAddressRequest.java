@@ -11,4 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class FindAddressRequest extends PageRequest {
     private Long userId;
+
+    private Boolean userOnly;
 }

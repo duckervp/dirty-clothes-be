@@ -3,6 +3,7 @@ package com.dirty.shop.service.impl;
 import com.dirty.shop.dto.request.AddressRequest;
 import com.dirty.shop.dto.request.FindAddressRequest;
 import com.dirty.shop.model.Address;
+import com.dirty.shop.model.User;
 import com.dirty.shop.repository.AddressRepository;
 import com.dirty.shop.service.AddressService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,31 +25,39 @@ public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
 
     @Override
-    public String save(AddressRequest request) {
+    public Address save(AddressRequest request) {
+        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         Address address = Address.builder()
-                .userId(request.getUserId())
+                .userId(userPrincipal.getId())
                 .detailAddress(request.getDetailAddress())
                 .phone(request.getPhone())
                 .postalCode(request.getPostalCode())
                 .note(request.getNote())
                 .name(request.getName())
+                .shippingInfo(request.getShippingInfo())
                 .build();
 
         addressRepository.save(address);
-        return "Save address successful";
+        return address;
     }
 
     @Override
     public Page<Address> findAll(FindAddressRequest request) {
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
-        Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(),sort);
-        return addressRepository.findAddress(request.getUserId() ,pageable);
+        Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(), sort);
+
+        if (Boolean.TRUE.equals(request.getUserOnly())) {
+            User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            request.setUserId(userPrincipal.getId());
+        }
+
+        return addressRepository.findAddress(request.getUserId(), pageable);
     }
 
     @Override
     public String update(Long id, AddressRequest request) {
         Address address = addressRepository.findById(id).orElseThrow();
-        address.setUserId(request.getUserId());
         address.setDetailAddress(request.getDetailAddress());
         address.setPhone(request.getPhone());
         address.setPostalCode(request.getPostalCode());

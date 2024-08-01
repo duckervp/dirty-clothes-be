@@ -78,22 +78,7 @@ public class OrderServiceImpl implements OrderService {
     public String save(OrderRequest request) {
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Address address;
-        if (Objects.isNull(request.getShippingAddressId())) {
-            address = Address.builder()
-                    .userId(userPrincipal.getId())
-                    .phone(request.getPhone())
-                    .note(request.getNote())
-                    .name(request.getReceiverName())
-                    .detailAddress(request.getShippingAddress())
-                    .postalCode(request.getPostalCode())
-                    .shippingInfo(request.getShippingInfo())
-                    .build();
-
-            addressRepository.save(address);
-        } else {
-            address = addressRepository.findById(request.getShippingAddressId()).orElseThrow();
-        }
+        Address address = addressRepository.findById(request.getShippingAddressId()).orElseThrow();
 
         List<Long> productDetailIds = request.getOrderDetails().stream()
                 .map(OrderDetailRequest::getProductDetailId).toList();
@@ -143,24 +128,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public String update(Long id, OrderRequest request) {
-        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        Address address;
-        if (Objects.isNull(request.getShippingAddressId())) {
-            address = Address.builder()
-                    .userId(userPrincipal.getId())
-                    .phone(request.getPhone())
-                    .note(request.getNote())
-                    .name(request.getReceiverName())
-                    .detailAddress(request.getShippingAddress())
-                    .postalCode(request.getPostalCode())
-                    .build();
-
-            addressRepository.save(address);
-        } else {
-            address = addressRepository.findById(request.getShippingAddressId()).orElseThrow();
-        }
-
+        Address address = addressRepository.findById(request.getShippingAddressId()).orElseThrow();
         Order order = orderRepository.findById(id).orElseThrow();
         order.setStatus(request.getOrderStatus());
         order.setShippingAddressId(address.getId());

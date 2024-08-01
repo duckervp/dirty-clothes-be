@@ -8,8 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddressRequest {
-    private Long userId;
-
     private String detailAddress;
 
     private String phone;
@@ -19,4 +17,6 @@ public class AddressRequest {
     private String note;
 
     private String name;
+
+    private String shippingInfo;
 }

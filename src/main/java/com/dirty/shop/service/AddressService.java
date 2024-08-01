@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface AddressService {
-    String save(AddressRequest request);
+    Address save(AddressRequest request);
 
     Page<Address> findAll(FindAddressRequest request);
 
