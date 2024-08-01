@@ -1,5 +1,6 @@
 package com.dirty.shop.service;
 
+import com.dirty.shop.dto.request.UserNameRequest;
 import com.dirty.shop.dto.request.UserRequest;
 import com.dirty.shop.dto.request.FindUserRequest;
 import com.dirty.shop.model.User;
@@ -19,4 +20,6 @@ public interface UserService {
     String delete(List<Long> ids);
 
     User findById(Long id);
+
+    String updateName(UserNameRequest request);
 }

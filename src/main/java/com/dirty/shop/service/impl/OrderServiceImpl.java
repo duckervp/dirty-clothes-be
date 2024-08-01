@@ -17,6 +17,7 @@ import com.dirty.shop.repository.OrderDetailRepository;
 import com.dirty.shop.repository.OrderRepository;
 import com.dirty.shop.repository.ProductDetailRepository;
 import com.dirty.shop.service.OrderService;
+import com.dirty.shop.utils.AuthUtils;
 import com.dirty.shop.utils.StreamUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,19 +46,32 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<OrderResponse> findAll(FindOrderRequest request) {
+        if (Boolean.TRUE.equals(request.getUserOnly())) {
+            request.setUserId(AuthUtils.currentUserId());
+        }
+
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
         Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(), sort);
         Page<OrderResponse> page = orderRepository.findOrder(request, pageable);
         List<Long> orderIds = page.getContent().stream().map(OrderResponse::getId).toList();
         List<OrderItemResponse> orderItemResponses = orderDetailRepository.findOrderItemResponse(orderIds);
         Map<Long, OrderItemResponse> mapOrderItemToOrderId = new HashMap<>();
+        Map<Long, Set<Long>> mapOrderTotalItem = new HashMap<>();
         for (OrderItemResponse orderItemResponse : orderItemResponses) {
             if (!mapOrderItemToOrderId.containsKey(orderItemResponse.getOrderId())) {
                 mapOrderItemToOrderId.put(orderItemResponse.getOrderId(), orderItemResponse);
             }
+
+            if (!mapOrderTotalItem.containsKey(orderItemResponse.getOrderId())) {
+                mapOrderTotalItem.put(orderItemResponse.getOrderId(), new HashSet<>());
+            }
+            mapOrderTotalItem.get(orderItemResponse.getOrderId()).add(orderItemResponse.getOrderDetailId());
         }
 
-        page.getContent().forEach(t -> t.setFirstItem(mapOrderItemToOrderId.get(t.getId())));
+        page.getContent().forEach(t -> {
+            t.setFirstItem(mapOrderItemToOrderId.get(t.getId()));
+            t.setTotalItems(mapOrderTotalItem.get(t.getId()).size());
+        });
         return page;
     }
 
@@ -76,8 +89,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public String save(OrderRequest request) {
-        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         Address address = addressRepository.findById(request.getShippingAddressId()).orElseThrow();
 
         List<Long> productDetailIds = request.getOrderDetails().stream()
@@ -97,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = Order.builder()
                 .code(UUID.randomUUID().toString())
-                .userId(userPrincipal.getId())
+                .userId(AuthUtils.currentUserId())
                 .status(OrderStatus.ORDER)
                 .paymentMethod(PaymentMethod.CASH_ON_DELIVERY)
                 .shippingAddressId(address.getId())
@@ -195,24 +206,32 @@ public class OrderServiceImpl implements OrderService {
     private OrderDetailResponse getOrderDetailResponse(Order order) {
         Address address = addressRepository.findById(order.getShippingAddressId()).orElseThrow();
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(order.getId());
-        Map<Long, OrderDetail> mapOrderDetailToProductDetailId = StreamUtils.toMap(orderDetails, OrderDetail::getProductDetailId);
+        List<Long> productDetailIds = StreamUtils.toList(orderDetails, OrderDetail::getProductDetailId);
 
-        List<ProductDetailProjection> productDetails = productDetailRepository.findProductDetailByIdIn(mapOrderDetailToProductDetailId.keySet().stream().toList());
+        List<ProductDetailProjection> productDetails = productDetailRepository.findProductDetailByIdIn(productDetailIds);
+        Map<Long, ProductDetailProjection> mapProductDetailById = StreamUtils
+                .toMap(productDetails, ProductDetailProjection::getProductDetailId);
+
         List<OrderItemResponse> orderItemResponses = new ArrayList<>();
-        for (ProductDetailProjection productDetail : productDetails) {
-            OrderDetail orderDetail = mapOrderDetailToProductDetailId.get(productDetail.getProductDetailId());
 
-            if (Objects.nonNull(orderDetail)) {
-                OrderItemResponse orderItemResponse = OrderItemResponse.builder()
-                        .productName(productDetail.getProductName())
-                        .price(orderDetail.getPrice())
-                        .quantity(orderDetail.getQuantity())
-                        .color(productDetail.getProductColor())
-                        .imageUrl(productDetail.getImageUrl())
-                        .build();
+        for (OrderDetail orderDetail : orderDetails) {
+            ProductDetailProjection productDetail = mapProductDetailById.get(orderDetail.getProductDetailId());
 
-                orderItemResponses.add(orderItemResponse);
+            if (Objects.isNull(productDetail)) {
+                continue;
             }
+
+            OrderItemResponse orderItemResponse = OrderItemResponse.builder()
+                    .orderDetailId(orderDetail.getId())
+                    .productName(productDetail.getProductName())
+                    .price(orderDetail.getPrice())
+                    .quantity(orderDetail.getQuantity())
+                    .color(productDetail.getProductColor())
+                    .imageUrl(productDetail.getImageUrl())
+                    .size(productDetail.getProductSize().getValue())
+                    .build();
+
+            orderItemResponses.add(orderItemResponse);
         }
 
         return OrderDetailResponse.builder()
@@ -225,6 +244,7 @@ public class OrderServiceImpl implements OrderService {
                 .reason(order.getReason())
                 .orderItems(orderItemResponses)
                 .address(address)
+                .createdAt(order.getCreatedAt())
                 .build();
     }
 }

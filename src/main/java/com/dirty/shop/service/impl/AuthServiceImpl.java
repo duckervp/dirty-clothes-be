@@ -2,6 +2,7 @@ package com.dirty.shop.service.impl;
 
 import com.dirty.shop.config.context.TokenContextHolder;
 import com.dirty.shop.dto.Token;
+import com.dirty.shop.dto.request.ChangePasswordRequest;
 import com.dirty.shop.dto.request.LoginRequest;
 import com.dirty.shop.dto.request.RefreshTokenRequest;
 import com.dirty.shop.dto.request.RegisterRequest;
@@ -14,6 +15,7 @@ import com.dirty.shop.model.User;
 import com.dirty.shop.repository.UserRepository;
 import com.dirty.shop.service.AuthService;
 import com.dirty.shop.service.AuthTokenService;
+import com.dirty.shop.utils.AuthUtils;
 import com.dirty.shop.utils.RegexUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,34 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final AuthTokenService authTokenService;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    @Override
+    public String removeRefreshToken(RefreshTokenRequest request) {
+        TokenContextHolder.removeRefreshToken(request.getRefreshToken());
+        return "Removed refresh token successfully!";
+    }
+
+    @Override
+    public String changePassword(ChangePasswordRequest request) {
+        if (!StringUtils.hasText(request.getOldPassword())) {
+            throw new ApiException(AuthApiCode.PASSWORD_IS_REQUIRED);
+        }
+
+        if (!StringUtils.hasText(request.getNewPassword())) {
+            throw new ApiException(AuthApiCode.NEW_PASSWORD_REQUIRED);
+        }
+
+        User user = userRepository.findById(AuthUtils.currentUserId())
+                .orElseThrow(() -> new ApiException(AuthApiCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new ApiException(AuthApiCode.GIVEN_PASSWORD_INCORRECT);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        return "Changed password successfully!";
+    }
 
     @Override
     public LoginResponse login(LoginRequest request) {

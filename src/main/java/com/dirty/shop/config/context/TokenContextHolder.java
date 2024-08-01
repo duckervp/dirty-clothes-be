@@ -68,4 +68,16 @@ public class TokenContextHolder {
         return null;
     }
 
+    public static void removeToken(String key, Map<String, String> context) {
+        context.remove(key);
+    }
+
+    public static void removeAccessToken(String key, Map<String, String> context) {
+        removeToken(key, ACCESS_TOKEN_CONTEXT);
+    }
+
+    public static void removeRefreshToken(String key) {
+        removeToken(key, REFRESH_TOKEN_CONTEXT);
+    }
+
 }

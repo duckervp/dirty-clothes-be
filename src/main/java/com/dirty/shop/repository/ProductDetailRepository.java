@@ -22,14 +22,30 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, Lo
     @Query("""
             SELECT
                 pd.id AS productDetailId,
+                pd.size AS productSize,
                 p.name AS productName,
                 p.price AS productPrice,
                 p.avatarUrl AS avatarUrl,
                 c.value AS productColor,
-                pi.imageUrl as imageUrl
+                pi3.imageUrl as imageUrl
             FROM ProductDetail pd JOIN Product p ON pd.productId = p.id
             LEFT JOIN Color c ON pd.colorId = c.id
-            LEFT JOIN ProductImage pi ON pi.productId = p.id AND pi.colorId = c.id
+            LEFT JOIN (
+                SELECT
+                    pi2.productId AS productId,
+                    pi2.colorId AS colorId,
+                    pi2.imageUrl AS imageUrl
+                FROM (
+                    SELECT
+                        pi.productId AS productId,
+                        pi.colorId AS colorId,
+                        pi.imageUrl AS imageUrl,
+                        ROW_NUMBER() OVER (PARTITION BY pi.productId, pi.colorId) AS rn
+                    FROM ProductImage pi
+                    ORDER BY pi.id
+                ) pi2
+                WHERE pi2.rn = 1
+            ) pi3 ON pi3.productId = p.id AND pi3.colorId = c.id
             WHERE pd.id IN :productDetailIds
             """)
     List<ProductDetailProjection> findProductDetailByIdIn(List<Long> productDetailIds);

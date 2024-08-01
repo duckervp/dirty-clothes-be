@@ -1,13 +1,11 @@
 package com.dirty.shop.config;
 
-import com.dirty.shop.base.WebConstants;
 import com.dirty.shop.config.property.AuthProperty;
-import com.dirty.shop.enums.Role;
 import com.dirty.shop.enums.apicode.AuthApiCode;
 import com.dirty.shop.model.User;
 import com.dirty.shop.repository.UserRepository;
 import com.dirty.shop.utils.AuthTokenUtils;
-import com.dirty.shop.utils.AuthenticationUtils;
+import com.dirty.shop.utils.AuthUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,20 +39,20 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         String jwt = null;
 
         try {
-            jwt = AuthenticationUtils.getJwtFromRequest(request);
+            jwt = AuthUtils.getJwtFromRequest(request);
             if (StringUtils.hasText(jwt)) {
                 Optional<AuthApiCode> error = AuthTokenUtils.validateToken(
                         jwt, authProperty.getTokenSecret()
                 );
 
                 if (error.isPresent()) {
-                    AuthenticationUtils.withUnauthorizedResponse(response, error.get());
+                    AuthUtils.withUnauthorizedResponse(response, error.get());
                     return;
                 }
 
                 User user = AuthTokenUtils.loadUserFromJwt(jwt, authProperty.getTokenSecret());
                 if (Objects.isNull(user)) {
-                    AuthenticationUtils.withUnauthorizedResponse(response, AuthApiCode.INVALID_JWT_TOKEN);
+                    AuthUtils.withUnauthorizedResponse(response, AuthApiCode.INVALID_JWT_TOKEN);
                     return;
                 }
 

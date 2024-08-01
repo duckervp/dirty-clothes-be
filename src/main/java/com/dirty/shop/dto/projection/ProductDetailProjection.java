@@ -1,6 +1,6 @@
 package com.dirty.shop.dto.projection;
 
-import com.dirty.shop.enums.ProductStatus;
+import com.dirty.shop.enums.Size;
 
 public interface ProductDetailProjection {
     Long getProductDetailId();
@@ -8,6 +8,8 @@ public interface ProductDetailProjection {
     String getProductName();
 
     Double getProductPrice();
+
+    Size getProductSize();
 
     String getAvatarUrl();
 

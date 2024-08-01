@@ -3,16 +3,15 @@ package com.dirty.shop.service.impl;
 import com.dirty.shop.dto.request.AddressRequest;
 import com.dirty.shop.dto.request.FindAddressRequest;
 import com.dirty.shop.model.Address;
-import com.dirty.shop.model.User;
 import com.dirty.shop.repository.AddressRepository;
 import com.dirty.shop.service.AddressService;
+import com.dirty.shop.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,10 +25,8 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public Address save(AddressRequest request) {
-        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         Address address = Address.builder()
-                .userId(userPrincipal.getId())
+                .userId(AuthUtils.currentUserId())
                 .detailAddress(request.getDetailAddress())
                 .phone(request.getPhone())
                 .postalCode(request.getPostalCode())
@@ -48,8 +45,7 @@ public class AddressServiceImpl implements AddressService {
         Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(), sort);
 
         if (Boolean.TRUE.equals(request.getUserOnly())) {
-            User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            request.setUserId(userPrincipal.getId());
+            request.setUserId(AuthUtils.currentUserId());
         }
 
         return addressRepository.findAddress(request.getUserId(), pageable);

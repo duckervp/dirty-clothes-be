@@ -16,4 +16,8 @@ public class FindOrderRequest extends PageRequest {
     private String code;
 
     private OrderStatus status;
+
+    private Boolean userOnly;
+
+    private Long userId;
 }

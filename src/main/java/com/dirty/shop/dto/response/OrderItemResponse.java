@@ -1,19 +1,21 @@
 package com.dirty.shop.dto.response;
 
-import com.dirty.shop.enums.OrderStatus;
-import com.dirty.shop.enums.PaymentMethod;
-import com.dirty.shop.model.Address;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import com.dirty.shop.enums.Size;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderItemResponse {
+    @JsonIgnore
     private Long orderId;
+
+    private Long orderDetailId;
 
     private String productName;
 
@@ -24,4 +26,17 @@ public class OrderItemResponse {
     private String color; // color value
 
     private String imageUrl;
+
+    private String size;
+
+    public OrderItemResponse(Long orderId, Long orderDetailId, String productName, Double price, Integer quantity, String color, String imageUrl, Size size) {
+        this.orderId = orderId;
+        this.orderDetailId = orderDetailId;
+        this.productName = productName;
+        this.price = price;
+        this.quantity = quantity;
+        this.color = color;
+        this.imageUrl = imageUrl;
+        this.size = size.getValue();
+    }
 }

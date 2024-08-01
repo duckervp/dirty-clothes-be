@@ -22,11 +22,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                 o.status,
                 o.paymentMethod,
                 o.reason,
-                o.shippingFee
+                o.shippingFee,
+                o.total,
+                o.createdAt
             )
             FROM Order o
             WHERE (:#{#request.code} IS NULL OR o.code = :#{#request.code})
             AND (:#{#request.status} IS NULL OR o.status = :#{#request.status})
+            AND (:#{#request.userId} IS NULL OR o.userId = :#{#request.userId})
             """)
     Page<OrderResponse> findOrder(FindOrderRequest request, Pageable pageable);
 

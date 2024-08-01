@@ -19,16 +19,33 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
     @Query("""
             SELECT NEW com.dirty.shop.dto.response.OrderItemResponse(
                 od.orderId,
+                od.id,
                 p.name,
                 od.price,
                 od.quantity,
                 c.value,
-                pi.imageUrl
+                pi3.imageUrl,
+                pd.size
             ) FROM OrderDetail od
             LEFT JOIN ProductDetail pd ON od.productDetailId = pd.id
             LEFT JOIN Product p ON pd.productId = p.id
             LEFT JOIN Color c ON pd.colorId = c.id
-            LEFT JOIN ProductImage pi ON pi.productId = p.id AND pi.colorId = c.id
+            LEFT JOIN (
+                SELECT
+                    pi2.productId AS productId,
+                    pi2.colorId AS colorId,
+                    pi2.imageUrl AS imageUrl
+                FROM (
+                    SELECT
+                        pi.productId AS productId,
+                        pi.colorId AS colorId,
+                        pi.imageUrl AS imageUrl,
+                        ROW_NUMBER() OVER (PARTITION BY pi.productId, pi.colorId) AS rn
+                    FROM ProductImage pi
+                    ORDER BY pi.id
+                ) pi2
+                WHERE pi2.rn = 1
+            ) pi3 ON pi3.productId = p.id AND pi3.colorId = c.id
             WHERE od.orderId IN :orderIds
             """)
     List<OrderItemResponse> findOrderItemResponse(List<Long> orderIds);

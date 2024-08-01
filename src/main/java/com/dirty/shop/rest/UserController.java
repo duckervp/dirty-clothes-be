@@ -2,6 +2,7 @@ package com.dirty.shop.rest;
 
 import com.dirty.shop.base.Response;
 import com.dirty.shop.base.WebConstants;
+import com.dirty.shop.dto.request.UserNameRequest;
 import com.dirty.shop.dto.request.FindUserRequest;
 import com.dirty.shop.dto.request.UserRequest;
 import com.dirty.shop.model.User;
@@ -28,6 +29,11 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<Response<User>> getUser(@PathVariable Long id) {
         return ResponseEntity.ok(Response.success(userService.findById(id)));
+    }
+
+    @PatchMapping("/update-name")
+    public ResponseEntity<Response<String>> updateUserName(@RequestBody UserNameRequest request) {
+        return ResponseEntity.ok(Response.success(userService.updateName(request)));
     }
 
     @PostMapping()
