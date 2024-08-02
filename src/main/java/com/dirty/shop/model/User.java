@@ -59,6 +59,7 @@ public class User extends BaseModel implements UserDetails {
                 .name(user.name)
                 .role(user.role)
                 .status(user.status)
+                .avatarUrl(user.getAvatarUrl())
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package com.dirty.shop.service;
 
+import com.dirty.shop.dto.request.AvatarRequest;
 import com.dirty.shop.dto.request.UserNameRequest;
 import com.dirty.shop.dto.request.UserRequest;
 import com.dirty.shop.dto.request.FindUserRequest;
@@ -22,4 +23,6 @@ public interface UserService {
     User findById(Long id);
 
     String updateName(UserNameRequest request);
+
+    String updateAvatar(AvatarRequest request);
 }

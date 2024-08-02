@@ -27,7 +27,8 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, Lo
                 p.price AS productPrice,
                 p.avatarUrl AS avatarUrl,
                 c.value AS productColor,
-                pi3.imageUrl as imageUrl
+                pi3.imageUrl AS imageUrl,
+                p.slug AS slug
             FROM ProductDetail pd JOIN Product p ON pd.productId = p.id
             LEFT JOIN Color c ON pd.colorId = c.id
             LEFT JOIN (

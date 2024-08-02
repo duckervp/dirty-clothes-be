@@ -25,7 +25,8 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
                 od.quantity,
                 c.value,
                 pi3.imageUrl,
-                pd.size
+                pd.size,
+                p.slug
             ) FROM OrderDetail od
             LEFT JOIN ProductDetail pd ON od.productDetailId = pd.id
             LEFT JOIN Product p ON pd.productId = p.id

@@ -29,7 +29,10 @@ public class OrderItemResponse {
 
     private String size;
 
-    public OrderItemResponse(Long orderId, Long orderDetailId, String productName, Double price, Integer quantity, String color, String imageUrl, Size size) {
+    private String slug;
+
+    public OrderItemResponse(Long orderId, Long orderDetailId, String productName, Double price,
+                             Integer quantity, String color, String imageUrl, Size size, String slug) {
         this.orderId = orderId;
         this.orderDetailId = orderDetailId;
         this.productName = productName;
@@ -38,5 +41,6 @@ public class OrderItemResponse {
         this.color = color;
         this.imageUrl = imageUrl;
         this.size = size.getValue();
+        this.slug = slug;
     }
 }

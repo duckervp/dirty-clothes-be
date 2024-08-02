@@ -1,12 +1,15 @@
 package com.dirty.shop.service.impl;
 
+import com.dirty.shop.dto.request.AvatarRequest;
 import com.dirty.shop.dto.request.UserNameRequest;
 import com.dirty.shop.dto.request.UserRequest;
 import com.dirty.shop.dto.request.FindUserRequest;
+import com.dirty.shop.enums.Role;
 import com.dirty.shop.enums.apicode.AuthApiCode;
 import com.dirty.shop.exception.ApiException;
 import com.dirty.shop.model.User;
 import com.dirty.shop.repository.UserRepository;
+import com.dirty.shop.service.FileService;
 import com.dirty.shop.service.UserService;
 import com.dirty.shop.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,22 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final BCryptPasswordEncoder passwordEncoder;
+
+    private final FileService fileService;
+
+    @Override
+    public String updateAvatar(AvatarRequest request) {
+        User user = userRepository.findById(AuthUtils.currentUserId())
+                .orElseThrow(() -> new ApiException(AuthApiCode.USER_NOT_FOUND));
+
+        if (StringUtils.hasText(request.getAvatarUrl())) {
+            fileService.deleteFile(user.getAvatarUrl());
+        }
+
+        user.setAvatarUrl(request.getAvatarUrl());
+        userRepository.save(user);
+        return "Updated avatar successfully!";
+    }
 
     @Override
     public String updateName(UserNameRequest request) {
@@ -61,7 +80,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<User> findAll(FindUserRequest request) {
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
-        Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(),sort);
+        Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(), sort);
         return userRepository.findUser(request, pageable);
     }
 
@@ -80,6 +99,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public String delete(Long id) {
         User user = userRepository.findById(id).orElseThrow();
+
+        if (Role.USER.equals(AuthUtils.currentRole()) && !user.getId().equals(AuthUtils.currentUserId())) {
+            throw new ApiException(AuthApiCode.PERMISSION_DENIED);
+        }
+
         user.setDeleted(true);
 
         userRepository.save(user);
@@ -89,7 +113,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String delete(List<Long> ids) {
         List<User> users = userRepository.findAllById(ids);
-        for (User user : users){
+        for (User user : users) {
             user.setDeleted(true);
         }
 
@@ -99,6 +123,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id).orElseThrow();
+
+        if (Role.USER.equals(AuthUtils.currentRole()) && !user.getId().equals(AuthUtils.currentUserId())) {
+            throw new ApiException(AuthApiCode.PERMISSION_DENIED);
+        }
+
+        return user;
     }
 }

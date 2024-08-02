@@ -28,6 +28,7 @@ public enum AuthApiCode implements ApiCode {
     CANNOT_CREATE_USER(19, "Cannot create user"),
     USERNAME_IS_IN_USED(20, "Username is in used"),
     THIS_FIELD_IS_REQUIRED(21, "This field is required"),
+    AVATAR_URL_IS_REQUIRED(21, "Avatar url is required"),
     INVALID_EMAIL(22, "Invalid email"),
     NO_ACCOUNT_ASSOCIATED_WITH_EMAIL(23, "There is not an account associated with this email"),
     ACCOUNT_BANNED(24, "Your account has been suspended. Please contact our admin for support"),

@@ -2,6 +2,9 @@ package com.dirty.shop.service.impl;
 
 import com.dirty.shop.dto.request.AddressRequest;
 import com.dirty.shop.dto.request.FindAddressRequest;
+import com.dirty.shop.enums.Role;
+import com.dirty.shop.enums.apicode.AuthApiCode;
+import com.dirty.shop.exception.ApiException;
 import com.dirty.shop.model.Address;
 import com.dirty.shop.repository.AddressRepository;
 import com.dirty.shop.service.AddressService;
@@ -44,7 +47,9 @@ public class AddressServiceImpl implements AddressService {
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
         Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(), sort);
 
-        if (Boolean.TRUE.equals(request.getUserOnly())) {
+        boolean setUserId = Role.USER.equals(AuthUtils.currentRole())
+                || (Role.ADMIN.equals(AuthUtils.currentRole()) && Boolean.TRUE.equals(request.getUserOnly()));
+        if (setUserId) {
             request.setUserId(AuthUtils.currentUserId());
         }
 
@@ -60,6 +65,10 @@ public class AddressServiceImpl implements AddressService {
         address.setName(request.getName());
         address.setNote(request.getNote());
 
+        if (Role.USER.equals(AuthUtils.currentRole()) && !address.getUserId().equals(AuthUtils.currentUserId())) {
+            throw new ApiException(AuthApiCode.PERMISSION_DENIED);
+        }
+
         addressRepository.save(address);
         return "Update address successful";
     }
@@ -67,6 +76,11 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public String delete(Long id) {
         Address address = addressRepository.findById(id).orElseThrow();
+
+        if (Role.USER.equals(AuthUtils.currentRole()) && !address.getUserId().equals(AuthUtils.currentUserId())) {
+            throw new ApiException(AuthApiCode.PERMISSION_DENIED);
+        }
+
         address.setDeleted(true);
 
         addressRepository.save(address);
@@ -84,6 +98,12 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public Address findById(Long id) {
-        return addressRepository.findById(id).orElseThrow();
+        Address address = addressRepository.findById(id).orElseThrow();
+
+        if (Role.USER.equals(AuthUtils.currentRole()) && !address.getUserId().equals(AuthUtils.currentUserId())) {
+            throw new ApiException(AuthApiCode.PERMISSION_DENIED);
+        }
+
+        return address;
     }
 }

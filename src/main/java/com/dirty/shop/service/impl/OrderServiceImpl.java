@@ -9,6 +9,8 @@ import com.dirty.shop.dto.response.OrderItemResponse;
 import com.dirty.shop.dto.response.OrderResponse;
 import com.dirty.shop.enums.OrderStatus;
 import com.dirty.shop.enums.PaymentMethod;
+import com.dirty.shop.enums.Role;
+import com.dirty.shop.enums.apicode.AuthApiCode;
 import com.dirty.shop.enums.apicode.OrderApiCode;
 import com.dirty.shop.exception.ApiException;
 import com.dirty.shop.model.*;
@@ -46,7 +48,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<OrderResponse> findAll(FindOrderRequest request) {
-        if (Boolean.TRUE.equals(request.getUserOnly())) {
+        boolean setUserId = Role.USER.equals(AuthUtils.currentRole())
+                || (Role.ADMIN.equals(AuthUtils.currentRole()) && Boolean.TRUE.equals(request.getUserOnly()));
+
+        if (setUserId) {
             request.setUserId(AuthUtils.currentUserId());
         }
 
@@ -84,6 +89,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDetailResponse findDetailByCode(String code) {
         Order order = orderRepository.findByCode(code).orElseThrow(() -> new ApiException(OrderApiCode.ORDER_NOT_FOUND));
+
+        if (Role.USER.equals(AuthUtils.currentRole()) && !order.getUserId().equals(AuthUtils.currentUserId())) {
+            throw new ApiException(AuthApiCode.PERMISSION_DENIED);
+        }
+
         return getOrderDetailResponse(order);
     }
 
@@ -143,6 +153,11 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id).orElseThrow();
         order.setStatus(request.getOrderStatus());
         order.setShippingAddressId(address.getId());
+
+        if (Role.USER.equals(AuthUtils.currentRole()) && !order.getUserId().equals(AuthUtils.currentUserId())) {
+            throw new ApiException(AuthApiCode.PERMISSION_DENIED);
+        }
+
         orderRepository.save(order);
 
         List<Long> productDetailIds = request.getOrderDetails().stream()
@@ -175,6 +190,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public String delete(Long id) {
         Order order = orderRepository.findById(id).orElseThrow();
+
+        if (Role.USER.equals(AuthUtils.currentRole()) && !order.getUserId().equals(AuthUtils.currentUserId())) {
+            throw new ApiException(AuthApiCode.PERMISSION_DENIED);
+        }
+
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(id);
 
         order.setDeleted(true);
@@ -229,6 +249,7 @@ public class OrderServiceImpl implements OrderService {
                     .color(productDetail.getProductColor())
                     .imageUrl(productDetail.getImageUrl())
                     .size(productDetail.getProductSize().getValue())
+                    .slug(productDetail.getSlug())
                     .build();
 
             orderItemResponses.add(orderItemResponse);

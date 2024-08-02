@@ -16,4 +16,6 @@ public interface ProductDetailProjection {
     String getProductColor();
 
     String getImageUrl();
+
+    String getSlug();
 }

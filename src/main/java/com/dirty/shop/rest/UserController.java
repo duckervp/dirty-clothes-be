@@ -2,6 +2,7 @@ package com.dirty.shop.rest;
 
 import com.dirty.shop.base.Response;
 import com.dirty.shop.base.WebConstants;
+import com.dirty.shop.dto.request.AvatarRequest;
 import com.dirty.shop.dto.request.UserNameRequest;
 import com.dirty.shop.dto.request.FindUserRequest;
 import com.dirty.shop.dto.request.UserRequest;
@@ -34,6 +35,11 @@ public class UserController {
     @PatchMapping("/update-name")
     public ResponseEntity<Response<String>> updateUserName(@RequestBody UserNameRequest request) {
         return ResponseEntity.ok(Response.success(userService.updateName(request)));
+    }
+
+    @PatchMapping("/update-avatar")
+    public ResponseEntity<Response<String>> updateAvatar(@RequestBody AvatarRequest request) {
+        return ResponseEntity.ok(Response.success(userService.updateAvatar(request)));
     }
 
     @PostMapping()

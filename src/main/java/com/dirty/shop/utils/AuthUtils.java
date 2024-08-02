@@ -29,13 +29,12 @@ public class AuthUtils {
         return null;
     }
 
-    public static Optional<Role> currentRole() {
+    public static Role currentRole() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Optional<Role> role = Optional.empty();
         if (authentication != null && authentication.getPrincipal() instanceof User user) {
-            role = Optional.of(user.getRole());
+            return user.getRole();
         }
-        return role;
+        return null;
     }
 
     public static Long currentUserId() {

@@ -193,6 +193,7 @@ public class ProductServiceImpl implements ProductService {
                 .images(productImageResponseList)
                 .categories(categoryList)
                 .salePrice(product.getSalePrice())
+                .slug(product.getSlug())
                 .build();
     }
 

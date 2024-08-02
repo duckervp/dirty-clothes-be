@@ -30,4 +30,6 @@ public class DetailedProductResponse {
     private List<ProductDetailResponse> productDetails;
 
     private List<ProductImageResponse> images;
+
+    private String slug;
 }

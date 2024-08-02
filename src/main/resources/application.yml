@@ -23,12 +23,13 @@ spring:
             redirectUri: ${GOOGLE_REDIRECT_URI}
   servlet:
     multipart:
+      enabled: true
       max-file-size: 50MB
       max-request-size: 50MB
 
 auth:
   token-secret: ${AUTH_TOKEN_SECRET}
-  access-token-expiration-mils: 1200000 #86400000
+  access-token-expiration-mils: 86400000
   refresh-token-expiration-mils: 259200000
   verify-email-token-expiration-mils: 86400000
 

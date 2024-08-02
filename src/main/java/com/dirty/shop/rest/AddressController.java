@@ -9,6 +9,7 @@ import com.dirty.shop.service.AddressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class AddressController {
     }
 
     @DeleteMapping("/{ids}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Response<String>> delete(@PathVariable List<Long> ids) {
         return ResponseEntity.ok(Response.success(addressService.delete(ids)));
     }
