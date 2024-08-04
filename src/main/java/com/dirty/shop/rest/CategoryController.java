@@ -4,6 +4,7 @@ import com.dirty.shop.base.Response;
 import com.dirty.shop.base.WebConstants;
 import com.dirty.shop.dto.request.FindCategoryRequest;
 import com.dirty.shop.dto.request.CategoryRequest;
+import com.dirty.shop.dto.response.CategoryResponse;
 import com.dirty.shop.model.Category;
 import com.dirty.shop.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping()
-    public ResponseEntity<Response<Page<Category>>> getAllCategories(FindCategoryRequest request) {
+    public ResponseEntity<Response<List<CategoryResponse>>> getAllCategories(FindCategoryRequest request) {
         return ResponseEntity.ok(Response.success(categoryService.findAll(request)));
     }
 

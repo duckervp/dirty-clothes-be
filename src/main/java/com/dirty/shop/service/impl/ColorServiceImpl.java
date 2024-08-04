@@ -36,7 +36,11 @@ public class ColorServiceImpl implements ColorService {
     @Override
     public Page<Color> findAll(FindColorRequest request) {
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
-        Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(),sort);
+        Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(), sort);
+
+        if (Boolean.TRUE.equals(request.getAll())) {
+            pageable = Pageable.unpaged(sort);
+        }
 
         return colorRepository.findColor(request.getName(), pageable);
     }

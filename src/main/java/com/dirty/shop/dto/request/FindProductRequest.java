@@ -27,4 +27,8 @@ public class FindProductRequest extends PageRequest {
     private List<Long> colorIds;
 
     private List<Size> sizes;
+
+    private String categoryValue;
+
+    private Boolean bestSeller;
 }

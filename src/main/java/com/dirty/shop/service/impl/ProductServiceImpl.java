@@ -14,6 +14,8 @@ import com.dirty.shop.exception.ApiException;
 import com.dirty.shop.model.*;
 import com.dirty.shop.repository.*;
 import com.dirty.shop.service.ProductService;
+import com.dirty.shop.utils.BusinessUtils;
+import com.dirty.shop.utils.SortUtils;
 import com.dirty.shop.utils.StreamUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.text.Normalizer;
 import java.util.*;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +55,20 @@ public class ProductServiceImpl implements ProductService {
 
         List<Product> productList = productRepository.findAllProducts(request);
 
+        if (Objects.nonNull(request.getCategoryValue())) {
+            Category category = categoryRepository.findByValue(request.getCategoryValue()).orElse(null);
+            if (Objects.isNull(category)) {
+                request.setCategoryIds(List.of());
+            } else {
+                if (Objects.nonNull(category.getParentId())) {
+                    setCategoryIds(request, List.of(category.getId()));
+                } else {
+                    List<Category> categories = categoryRepository.findByParentId(category.getId());
+                    setCategoryIds(request, StreamUtils.toList(categories, Category::getId));
+                }
+            }
+        }
+
         if (Objects.nonNull(request.getCategoryIds())) {
             productList = productList.stream().filter(product -> {
                 List<Long> ctgIds = StringUtils.commaDelimitedListToSet(product.getCategoryIds())
@@ -80,9 +94,28 @@ public class ProductServiceImpl implements ProductService {
         Map<Long, List<ColorProjection>> mapColorByProductId = StreamUtils.groupingApply(
                 colorProjectionList, ColorProjection::getProductId);
 
+        Comparator<Product> comparator = getComparator(request);
 
-        return StreamUtils.toPage(productList, pageable)
+        return StreamUtils.toPage(productList, pageable, comparator)
                 .map(item -> ProductResponse.from(item, mapColorByProductId.getOrDefault(item.getId(), List.of())));
+    }
+
+    private static void setCategoryIds(FindProductRequest request, List<Long> ids) {
+        if (Objects.isNull(request.getCategoryIds())) {
+            request.setCategoryIds(ids);
+        } else {
+            List<Long> cIds = new ArrayList<>(ids);
+            cIds.addAll(request.getCategoryIds());
+            request.setCategoryIds(cIds);
+        }
+    }
+
+    private Comparator<Product> getComparator(FindProductRequest request) {
+        return switch (request.getSortBy()) {
+            case "price" -> SortUtils.getComparator(Product::getPrice, request.getSort());
+            case "createdAt" -> SortUtils.getComparator(Product::getCreatedAt, request.getSort());
+            default -> SortUtils.getNoOpComparator();
+        };
     }
 
     @Override
@@ -206,7 +239,7 @@ public class ProductServiceImpl implements ProductService {
         product.setStatus(request.getStatus());
         product.setCategoryIds(StringUtils.collectionToCommaDelimitedString(request.getCategoryIds()));
         product.setSalePrice(request.getSalePrice());
-        product.setSlug(genSlug(request.getName()));
+        product.setSlug(BusinessUtils.genSlug(request.getName()));
         productRepository.save(product);
         return product;
     }
@@ -255,7 +288,7 @@ public class ProductServiceImpl implements ProductService {
                 .status(request.getStatus())
                 .categoryIds(StringUtils.collectionToCommaDelimitedString(request.getCategoryIds()))
                 .avatarUrl(request.getAvatarUrl())
-                .slug(genSlug(request.getName()))
+                .slug(BusinessUtils.genSlug(request.getName()))
                 .salePrice(request.getSalePrice())
                 .build();
 
@@ -288,7 +321,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
     }
-    
+
     private void updateProductDetail(ProductRequest request, Map<Long, ProductDetail> mapProductDetailById,
                                      Product product, List<ProductDetail> productDetailList) {
         for (ProductDetailRequest pdRequest : request.getProductDetails()) {
@@ -338,14 +371,4 @@ public class ProductServiceImpl implements ProductService {
         productImageRepository.saveAll(productImageList);
     }
 
-    private static String deAccent(String str) {
-        String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
-        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-        return pattern.matcher(nfdNormalizedString).replaceAll("");
-    }
-
-    public static String genSlug(String text) {
-        return String.join("-", deAccent(text).toLowerCase().split("\\s+"));
-    }
-    
 }

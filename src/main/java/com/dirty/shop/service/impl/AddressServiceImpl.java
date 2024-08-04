@@ -47,6 +47,10 @@ public class AddressServiceImpl implements AddressService {
         Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
         Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(), sort);
 
+        if (Boolean.TRUE.equals(request.getAll())) {
+            pageable = Pageable.unpaged(sort);
+        }
+
         boolean setUserId = Role.USER.equals(AuthUtils.currentRole())
                 || (Role.ADMIN.equals(AuthUtils.currentRole()) && Boolean.TRUE.equals(request.getUserOnly()));
         if (setUserId) {

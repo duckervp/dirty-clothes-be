@@ -4,7 +4,6 @@ import com.dirty.shop.dto.request.FindProductRequest;
 import com.dirty.shop.dto.request.ProductRequest;
 import com.dirty.shop.dto.response.DetailedProductResponse;
 import com.dirty.shop.dto.response.ProductResponse;
-import com.dirty.shop.model.Product;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

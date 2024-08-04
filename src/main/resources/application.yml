@@ -2,10 +2,12 @@ spring:
   application:
     name: shop
   jpa:
+    show-sql: true
     openInView: false
     properties:
       hibernate:
         dialect=org.hibernate.dialect.MySQLDialect
+        format_sql=true
     hibernate:
       ddlAuto: update
   datasource:
@@ -26,7 +28,6 @@ spring:
       enabled: true
       max-file-size: 50MB
       max-request-size: 50MB
-
 auth:
   token-secret: ${AUTH_TOKEN_SECRET}
   access-token-expiration-mils: 86400000

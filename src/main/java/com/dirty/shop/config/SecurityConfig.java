@@ -55,6 +55,8 @@ public class SecurityConfig {
 
     private static final String[] METHOD_GET_PERMIT_ALL_URLS = new String[]{
             etc(WebConstants.API_PRODUCT_PREFIX_V1),
+            etc(WebConstants.API_COLOR_PREFIX_V1),
+            etc(WebConstants.API_CATEGORY_PREFIX_V1),
     };
 
     @Bean

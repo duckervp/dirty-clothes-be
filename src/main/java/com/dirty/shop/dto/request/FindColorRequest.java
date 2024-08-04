@@ -8,4 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 public class FindColorRequest extends PageRequest {
     private String name;
+
+    private Boolean all;
 }

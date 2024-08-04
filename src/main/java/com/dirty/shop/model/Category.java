@@ -20,7 +20,7 @@ public class Category extends BaseModel {
 
     private String name;
 
-    private String description;
+    private String value;
 
     private Long parentId;
 }

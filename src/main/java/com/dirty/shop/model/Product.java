@@ -41,4 +41,5 @@ public class Product extends BaseModel {
 
     private String slug;
 
+    private Boolean bestSeller;
 }

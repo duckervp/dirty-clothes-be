@@ -2,13 +2,14 @@ package com.dirty.shop.service;
 
 import com.dirty.shop.dto.request.FindCategoryRequest;
 import com.dirty.shop.dto.request.CategoryRequest;
+import com.dirty.shop.dto.response.CategoryResponse;
 import com.dirty.shop.model.Category;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface CategoryService {
-    Page<Category> findAll(FindCategoryRequest request);
+    List<CategoryResponse> findAll(FindCategoryRequest request);
 
     Category findById(Long id);
 

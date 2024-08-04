@@ -2,18 +2,20 @@ package com.dirty.shop.service.impl;
 
 import com.dirty.shop.dto.request.CategoryRequest;
 import com.dirty.shop.dto.request.FindCategoryRequest;
+import com.dirty.shop.dto.response.CategoryItemResponse;
+import com.dirty.shop.dto.response.CategoryResponse;
 import com.dirty.shop.model.Category;
 import com.dirty.shop.repository.CategoryRepository;
 import com.dirty.shop.service.CategoryService;
+import com.dirty.shop.utils.BusinessUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,10 +25,51 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public Page<Category> findAll(FindCategoryRequest request) {
-        Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
-        Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(),sort);
-        return categoryRepository.findCategory(request.getName(), pageable);
+    public List<CategoryResponse> findAll(FindCategoryRequest request) {
+        List<Category> categories = categoryRepository.findAll();
+        List<CategoryResponse> categoryResponses = new ArrayList<>();
+        Map<Long, List<CategoryItemResponse>> mapCategoryItemResponseByParentId = new HashMap<>();
+
+        for (Category category : categories) {
+            category.setValue(BusinessUtils.genSlug(category.getName()));
+            if (Objects.nonNull(category.getParentId())) {
+                if (!mapCategoryItemResponseByParentId.containsKey(category.getParentId())) {
+                    mapCategoryItemResponseByParentId.put(category.getParentId(), new ArrayList<>());
+                }
+                mapCategoryItemResponseByParentId.get(category.getParentId())
+                        .add(CategoryItemResponse.builder()
+                                .id(category.getId())
+                                .name(category.getName())
+                                .value(category.getValue())
+                                .parentId(category.getParentId())
+                                .build());
+            }
+        }
+        categoryRepository.saveAll(categories);
+
+        for (Category category : categories) {
+            if (Objects.isNull(category.getParentId())) {
+                CategoryItemResponse parent = CategoryItemResponse.builder()
+                        .id(category.getId())
+                        .name(category.getName())
+                        .value(category.getValue())
+                        .build();
+                categoryResponses.add(CategoryResponse.builder()
+                        .parent(parent)
+                        .children(mapCategoryItemResponseByParentId.get(parent.getId()))
+                        .build());
+            }
+        }
+
+        if (Objects.nonNull(request.getParentId())) {
+            categoryResponses = categoryResponses.stream()
+                    .filter(item -> request.getParentId().equals(item.getParent().getId())).toList();
+        } else if (Objects.nonNull(request.getParentValue())) {
+            categoryResponses = categoryResponses.stream()
+                    .filter(item -> request.getParentValue().equals(item.getParent().getValue())).toList();
+        }
+
+        return categoryResponses;
     }
 
     @Override
@@ -38,7 +81,7 @@ public class CategoryServiceImpl implements CategoryService {
     public String save(CategoryRequest request) {
         Category category = Category.builder()
                 .name(request.getName())
-                .description(request.getDescription())
+                .value(Objects.nonNull(request.getValue()) ? request.getValue() : BusinessUtils.genSlug(request.getName()))
                 .parentId(request.getParentId())
                 .build();
 
@@ -50,7 +93,7 @@ public class CategoryServiceImpl implements CategoryService {
     public String update(Long id, CategoryRequest request) {
         Category category = categoryRepository.findById(id).orElseThrow();
         category.setName(request.getName());
-        category.setDescription(request.getDescription());
+        category.setValue(Objects.nonNull(request.getValue()) ? request.getValue() : BusinessUtils.genSlug(request.getName()));
         category.setParentId(request.getParentId());
 
         categoryRepository.save(category);

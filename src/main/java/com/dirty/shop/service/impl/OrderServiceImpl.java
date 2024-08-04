@@ -10,6 +10,7 @@ import com.dirty.shop.dto.response.OrderResponse;
 import com.dirty.shop.enums.OrderStatus;
 import com.dirty.shop.enums.PaymentMethod;
 import com.dirty.shop.enums.Role;
+import com.dirty.shop.enums.apicode.AddressApiCode;
 import com.dirty.shop.enums.apicode.AuthApiCode;
 import com.dirty.shop.enums.apicode.OrderApiCode;
 import com.dirty.shop.exception.ApiException;
@@ -138,6 +139,7 @@ public class OrderServiceImpl implements OrderService {
 
             ProductDetail productDetail = mapProductDetailToId.get(orderDetailRequest.getProductDetailId());
             productDetail.setInventory(productDetail.getInventory() - orderDetail.getQuantity());
+            productDetail.setSold(productDetail.getSold() + orderDetail.getQuantity());
             orderDetails.add(orderDetail);
         }
 
@@ -224,7 +226,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderDetailResponse getOrderDetailResponse(Order order) {
-        Address address = addressRepository.findById(order.getShippingAddressId()).orElseThrow();
+        Address address = addressRepository.findOrderAddressById(order.getShippingAddressId())
+                .orElseThrow(() -> new ApiException(AddressApiCode.ADDRESS_NOT_FOUND));
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(order.getId());
         List<Long> productDetailIds = StreamUtils.toList(orderDetails, OrderDetail::getProductDetailId);
 

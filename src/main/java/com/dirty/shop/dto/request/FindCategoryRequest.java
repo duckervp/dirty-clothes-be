@@ -9,6 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FindCategoryRequest extends PageRequest {
-    private String name;
+public class FindCategoryRequest {
+    private Long parentId;
+
+    private String parentValue;
 }

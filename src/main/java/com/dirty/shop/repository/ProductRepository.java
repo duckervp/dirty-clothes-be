@@ -36,6 +36,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         AND (:#{#request.priceFrom} IS NULL OR p.price >= :#{#request.priceFrom})
         AND (:#{#request.priceTo} IS NULL OR p.price <= :#{#request.priceTo})
         AND (:#{#request.targets}  IS NULL OR p.target IN :#{#request.targets})
+        AND (:#{#request.bestSeller} IS NULL OR p.bestSeller = :#{#request.bestSeller})
     """)
     List<Product> findAllProducts(FindProductRequest request);
 

@@ -13,4 +13,6 @@ public class FindAddressRequest extends PageRequest {
     private Long userId;
 
     private Boolean userOnly;
+
+    private Boolean all;
 }
