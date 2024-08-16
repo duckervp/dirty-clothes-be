@@ -1,6 +1,7 @@
 package com.dirty.shop.config;
 
 import com.dirty.shop.base.WebConstants;
+import com.dirty.shop.config.property.CorsProperty;
 import com.dirty.shop.service.security.CustomUserDetailsService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +31,8 @@ import java.util.List;
 @EnableMethodSecurity
 @AllArgsConstructor
 public class SecurityConfig {
+    private final CorsProperty corsProperty;
+
     private final CustomUserDetailsService customUserDetailsService;
 
     private final TokenAuthenticationFilter tokenAuthenticationFilter;
@@ -106,7 +109,7 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3030"));
+        configuration.setAllowedOrigins(List.of(corsProperty.getAllowedOrigins()));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

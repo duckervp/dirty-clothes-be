@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  shop-db:
+    image: mysql:8.1
+    environment:
+      MYSQL_ROOT_PASSWORD: <root_password>
+    ports:
+      - "3306:3306"
+    command: ["--max_connections=1000000"]
+    restart: "no"
+
+  shop-app:
+    image: <image>
+    environment:
+      MYSQL_URL: shop-db/shop
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: <root_password>
+      SERVER_PORT: 8080
+      PROD_URL: <prod_url>
+      AUTH_TOKEN_SECRET: <auth_token_secret>
+      CORS_ALLOWED_ORIGIN: <cors_allowed_origin>
+    ports:
+      - "8081:8080"
+    depends_on:
+      - shop-db
+    restart: always
