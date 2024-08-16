@@ -48,6 +48,3 @@ springdoc:
 file:
   rootPath: public/uploads
   domain: ${PROD_URL}
-
-cors:
-  allowedOrigins: ${CORS_ALLOWED_ORIGINS}

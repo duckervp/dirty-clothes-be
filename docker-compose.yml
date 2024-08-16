@@ -19,7 +19,6 @@ services:
       SERVER_PORT: 8080
       PROD_URL: <prod_url>
       AUTH_TOKEN_SECRET: <auth_token_secret>
-      CORS_ALLOWED_ORIGIN: <cors_allowed_origin>
     ports:
       - "8081:8080"
     depends_on:
