@@ -227,6 +227,7 @@ public class ProductServiceImpl implements ProductService {
                 .categories(categoryList)
                 .salePrice(product.getSalePrice())
                 .slug(product.getSlug())
+                .avatarUrl(product.getAvatarUrl())
                 .build();
     }
 
@@ -239,6 +240,7 @@ public class ProductServiceImpl implements ProductService {
         product.setStatus(request.getStatus());
         product.setCategoryIds(StringUtils.collectionToCommaDelimitedString(request.getCategoryIds()));
         product.setSalePrice(request.getSalePrice());
+        product.setAvatarUrl(request.getAvatarUrl());
         product.setSlug(BusinessUtils.genSlug(request.getName()));
         productRepository.save(product);
         return product;
@@ -329,6 +331,7 @@ public class ProductServiceImpl implements ProductService {
             if (Objects.nonNull(pdRequest.getId())) {
                 productDetail = mapProductDetailById.get(pdRequest.getId());
                 if (Objects.nonNull(productDetail)) {
+                    productDetail.setColorId(pdRequest.getColorId());
                     productDetail.setSize(pdRequest.getSize());
                     productDetail.setInventory(pdRequest.getInventory());
                     productDetail.setSold(pdRequest.getSold());
@@ -337,6 +340,7 @@ public class ProductServiceImpl implements ProductService {
             if (Objects.isNull(productDetail)) {
                 productDetail = ProductDetail.builder()
                         .productId(product.getId())
+                        .colorId(pdRequest.getColorId())
                         .size(pdRequest.getSize())
                         .inventory(pdRequest.getInventory())
                         .sold(pdRequest.getSold())

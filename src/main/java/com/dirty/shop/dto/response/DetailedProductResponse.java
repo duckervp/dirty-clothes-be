@@ -32,4 +32,6 @@ public class DetailedProductResponse {
     private List<ProductImageResponse> images;
 
     private String slug;
+
+    private String avatarUrl;
 }
