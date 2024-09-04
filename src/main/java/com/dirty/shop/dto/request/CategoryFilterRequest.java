@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FindCategoryRequest {
-    private Long parentId;
+public class CategoryFilterRequest {
+    private Boolean parent;
 
-    private String parentValue;
+    private String name;
 }

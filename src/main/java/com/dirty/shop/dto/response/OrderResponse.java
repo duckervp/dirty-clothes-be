@@ -2,24 +2,25 @@ package com.dirty.shop.dto.response;
 
 import com.dirty.shop.enums.OrderStatus;
 import com.dirty.shop.enums.PaymentMethod;
-import com.dirty.shop.model.Address;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.dirty.shop.model.User;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
-import java.util.List;
 
-@Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@SuperBuilder
 public class OrderResponse {
     private Long id;
 
     private String code;
+
+    private Long userId;
+
+    private User user;
 
     private OrderStatus status;
 
@@ -35,11 +36,19 @@ public class OrderResponse {
 
     private Integer totalItems;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "UTC")
     private Instant createdAt;
 
-    public OrderResponse(Long id, String code, OrderStatus status, PaymentMethod paymentMethod, String reason, Double shippingFee, Double total, Instant createdAt) {
+    private String createdBy;
+
+    private String updatedBy;
+
+    private Instant updatedAt;
+
+    public OrderResponse(Long id, Long userId, String code, OrderStatus status, PaymentMethod paymentMethod,
+                         String reason, Double shippingFee, Double total,
+                         Instant createdAt, String createdBy, Instant updatedAt, String updatedBy) {
         this.id = id;
+        this.userId = userId;
         this.code = code;
         this.status = status;
         this.paymentMethod = paymentMethod;
@@ -47,5 +56,8 @@ public class OrderResponse {
         this.shippingFee = shippingFee;
         this.total = total;
         this.createdAt = createdAt;
+        this.createdBy = createdBy;
+        this.updatedAt = updatedAt;
+        this.updatedBy = updatedBy;
     }
 }

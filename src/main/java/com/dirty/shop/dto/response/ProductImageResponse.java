@@ -1,17 +1,19 @@
 package com.dirty.shop.dto.response;
 
-import com.dirty.shop.dto.request.ProductImageRequest;
-import com.dirty.shop.enums.Size;
 import com.dirty.shop.model.Color;
 import com.dirty.shop.model.ProductImage;
-import lombok.Builder;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
-@Data
-@Builder
-public class ProductImageResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@SuperBuilder
+public class ProductImageResponse extends AuditableResponse {
     private Long id;
 
     private Long colorId;
@@ -29,6 +31,10 @@ public class ProductImageResponse {
                 .colorName(color.getName())
                 .colorValue(color.getValue())
                 .imageUrl(productImage.getImageUrl())
+                .createdAt(productImage.getCreatedAt())
+                .createdBy(productImage.getCreatedBy())
+                .updatedAt(productImage.getUpdatedAt())
+                .updatedBy(productImage.getUpdatedBy())
                 .build();
     }
 }

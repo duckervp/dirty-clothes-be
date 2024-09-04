@@ -3,10 +3,11 @@ package com.dirty.shop.rest;
 import com.dirty.shop.base.Response;
 import com.dirty.shop.base.WebConstants;
 import com.dirty.shop.dto.request.FindOrderRequest;
+import com.dirty.shop.dto.request.OrderBulkActionRequest;
 import com.dirty.shop.dto.request.OrderRequest;
+import com.dirty.shop.dto.request.OrderStatusRequest;
 import com.dirty.shop.dto.response.OrderDetailResponse;
 import com.dirty.shop.dto.response.OrderResponse;
-import com.dirty.shop.model.Order;
 import com.dirty.shop.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -56,5 +57,22 @@ public class OrderController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Response<String>> delete(@PathVariable List<Long> ids) {
         return ResponseEntity.ok(Response.success(orderService.delete(ids)));
+    }
+
+    @PostMapping("/bulk-action")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Response<String>> bulkActionUpdateOrderStatus(@RequestBody OrderBulkActionRequest request) {
+        return ResponseEntity.ok(Response.success(orderService.bulkAction(request)));
+    }
+
+    @PatchMapping("/{id}/update-status")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Response<String>> updateOrderStatus(@PathVariable Long id, @RequestBody OrderStatusRequest request) {
+        return ResponseEntity.ok(Response.success(orderService.updateStatus(id, request)));
+    }
+
+    @PatchMapping("/{id}/cancel-order")
+    public ResponseEntity<Response<String>> cancelOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(Response.success(orderService.cancelOrder(id)));
     }
 }

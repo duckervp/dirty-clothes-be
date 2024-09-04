@@ -1,9 +1,7 @@
 package com.dirty.shop.service.impl;
 
 import com.dirty.shop.dto.projection.ProductDetailProjection;
-import com.dirty.shop.dto.request.OrderDetailRequest;
-import com.dirty.shop.dto.request.OrderRequest;
-import com.dirty.shop.dto.request.FindOrderRequest;
+import com.dirty.shop.dto.request.*;
 import com.dirty.shop.dto.response.OrderDetailResponse;
 import com.dirty.shop.dto.response.OrderItemResponse;
 import com.dirty.shop.dto.response.OrderResponse;
@@ -15,10 +13,7 @@ import com.dirty.shop.enums.apicode.AuthApiCode;
 import com.dirty.shop.enums.apicode.OrderApiCode;
 import com.dirty.shop.exception.ApiException;
 import com.dirty.shop.model.*;
-import com.dirty.shop.repository.AddressRepository;
-import com.dirty.shop.repository.OrderDetailRepository;
-import com.dirty.shop.repository.OrderRepository;
-import com.dirty.shop.repository.ProductDetailRepository;
+import com.dirty.shop.repository.*;
 import com.dirty.shop.service.OrderService;
 import com.dirty.shop.utils.AuthUtils;
 import com.dirty.shop.utils.StreamUtils;
@@ -47,6 +42,8 @@ public class OrderServiceImpl implements OrderService {
 
     private final AddressRepository addressRepository;
 
+    private final UserRepository userRepository;
+
     @Override
     public Page<OrderResponse> findAll(FindOrderRequest request) {
         boolean setUserId = Role.USER.equals(AuthUtils.currentRole())
@@ -61,6 +58,9 @@ public class OrderServiceImpl implements OrderService {
         Page<OrderResponse> page = orderRepository.findOrder(request, pageable);
         List<Long> orderIds = page.getContent().stream().map(OrderResponse::getId).toList();
         List<OrderItemResponse> orderItemResponses = orderDetailRepository.findOrderItemResponse(orderIds);
+        List<Long> userIds = StreamUtils.toList(page.getContent(), OrderResponse::getUserId);
+        List<User> users = userRepository.findAllById(userIds);
+        Map<Long, User> mapUserById = StreamUtils.toMap(users, User::getId);
         Map<Long, OrderItemResponse> mapOrderItemToOrderId = new HashMap<>();
         Map<Long, Set<Long>> mapOrderTotalItem = new HashMap<>();
         for (OrderItemResponse orderItemResponse : orderItemResponses) {
@@ -77,6 +77,7 @@ public class OrderServiceImpl implements OrderService {
         page.getContent().forEach(t -> {
             t.setFirstItem(mapOrderItemToOrderId.get(t.getId()));
             t.setTotalItems(mapOrderTotalItem.get(t.getId()).size());
+            t.setUser(mapUserById.get(t.getUserId()));
         });
         return page;
     }
@@ -136,14 +137,9 @@ public class OrderServiceImpl implements OrderService {
                     .price(orderDetailRequest.getPrice())
                     .quantity(orderDetailRequest.getQuantity())
                     .build();
-
-            ProductDetail productDetail = mapProductDetailToId.get(orderDetailRequest.getProductDetailId());
-            productDetail.setInventory(productDetail.getInventory() - orderDetail.getQuantity());
-            productDetail.setSold(productDetail.getSold() + orderDetail.getQuantity());
             orderDetails.add(orderDetail);
         }
 
-        productDetailRepository.saveAll(productDetails);
         orderDetailRepository.saveAll(orderDetails);
         return "Create order successful";
     }
@@ -178,13 +174,11 @@ public class OrderServiceImpl implements OrderService {
                     continue;
                 }
 
-                productDetail.setInventory(productDetail.getInventory() - (orderDetailRequest.getQuantity() - orderDetail.getQuantity()));
-
                 orderDetail.setQuantity(orderDetailRequest.getQuantity());
                 orderDetail.setPrice(orderDetailRequest.getPrice());
             }
         }
-        productDetailRepository.saveAll(productDetails);
+
         orderDetailRepository.saveAll(orderDetails);
         return "Update order successful";
     }
@@ -224,6 +218,109 @@ public class OrderServiceImpl implements OrderService {
     public Order findById(Long id) {
         return orderRepository.findById(id).orElseThrow();
     }
+
+    @Override
+    public String bulkAction(OrderBulkActionRequest request) {
+        List<Order> orders = orderRepository.findAllById(request.getOrderIds());
+        if (!orders.isEmpty()) {
+            OrderStatus currentStatus = orders.getFirst().getStatus();
+
+            if (currentStatus.isFinalStatus()) {
+                throw new ApiException(OrderApiCode.ORDER_FINAL_STATUS);
+            }
+
+            if (currentStatus.getLevel() >= request.getStatus().getLevel()) {
+                throw new ApiException(OrderApiCode.ORDER_STATUS_PRIORITY);
+            }
+
+            if (request.getStatus().getLevel() - currentStatus.getLevel() > 1) {
+                throw new ApiException(OrderApiCode.ORDER_STATUS_PRIORITY);
+            }
+
+            orders.forEach(item -> item.setStatus(request.getStatus()));
+            orderRepository.saveAll(orders);
+
+            if (request.getStatus().equals(OrderStatus.ACCEPTED)) {
+                List<Long> orderIds = StreamUtils.toList(orders, Order::getId);
+                List<OrderDetail> orderDetails = orderDetailRepository.findByOrderIdIn(orderIds);
+                List<Long> productDetailIds = orderDetails.stream()
+                        .map(OrderDetail::getProductDetailId).toList();
+                List<ProductDetail> productDetails = productDetailRepository.findAllById(productDetailIds);
+                Map<Long, ProductDetail> mapProductDetailToId = StreamUtils.toMap(productDetails, ProductDetail::getId);
+
+                for (OrderDetail orderDetail : orderDetails) {
+                    ProductDetail productDetail = mapProductDetailToId.get(orderDetail.getProductDetailId());
+                    productDetail.setInventory(productDetail.getInventory() - orderDetail.getQuantity());
+                    productDetail.setSold(productDetail.getSold() + orderDetail.getQuantity());
+                }
+
+                productDetailRepository.saveAll(productDetails);
+            }
+        }
+        return "Update orders status successfully!";
+    }
+
+    @Override
+    public String updateStatus(Long id, OrderStatusRequest request) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ApiException(OrderApiCode.ORDER_NOT_FOUND));
+        if (order.getStatus().getLevel() >= request.getStatus().getLevel()) {
+            throw new ApiException(OrderApiCode.ORDER_STATUS_PRIORITY);
+        }
+
+        if (order.getStatus().isFinalStatus()) {
+            throw new ApiException(OrderApiCode.ORDER_FINAL_STATUS);
+        }
+
+        if (request.getStatus().getLevel() - order.getStatus().getLevel() > 1) {
+            throw new ApiException(OrderApiCode.ORDER_STATUS_PRIORITY);
+        }
+
+        if (request.getStatus().equals(OrderStatus.ACCEPTED)) {
+            List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(order.getId());
+            List<Long> productDetailIds = orderDetails.stream()
+                    .map(OrderDetail::getProductDetailId).toList();
+            List<ProductDetail> productDetails = productDetailRepository.findAllById(productDetailIds);
+            Map<Long, ProductDetail> mapProductDetailToId = StreamUtils.toMap(productDetails, ProductDetail::getId);
+
+            for (OrderDetail orderDetail : orderDetails) {
+                ProductDetail productDetail = mapProductDetailToId.get(orderDetail.getProductDetailId());
+                productDetail.setInventory(productDetail.getInventory() - orderDetail.getQuantity());
+                productDetail.setSold(productDetail.getSold() + orderDetail.getQuantity());
+            }
+
+            productDetailRepository.saveAll(productDetails);
+        }
+
+        order.setStatus(request.getStatus());
+        orderRepository.save(order);
+        return "Update orders status successfully!";
+    }
+
+    @Override
+    public String cancelOrder(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ApiException(OrderApiCode.ORDER_NOT_FOUND));
+
+        Long currentUserId = AuthUtils.currentUserId();
+
+        if (!currentUserId.equals(order.getUserId())) {
+            throw new ApiException(AuthApiCode.PERMISSION_DENIED);
+        }
+
+        if (order.getStatus().isFinalStatus()) {
+            throw new ApiException(OrderApiCode.ORDER_FINAL_STATUS);
+        }
+
+        if (order.getStatus().getLevel() >= OrderStatus.CANCELLED.getLevel()) {
+            throw new ApiException(OrderApiCode.ORDER_STATUS_PRIORITY);
+        }
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        return "Cancel order successfully!";
+    }
+
+    /* PRIVATE */
 
     private OrderDetailResponse getOrderDetailResponse(Order order) {
         Address address = addressRepository.findOrderAddressById(order.getShippingAddressId())
@@ -269,6 +366,9 @@ public class OrderServiceImpl implements OrderService {
                 .orderItems(orderItemResponses)
                 .address(address)
                 .createdAt(order.getCreatedAt())
+                .createdBy(order.getCreatedBy())
+                .updatedAt(order.getUpdatedAt())
+                .updatedBy(order.getUpdatedBy())
                 .build();
     }
 }

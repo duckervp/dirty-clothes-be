@@ -18,13 +18,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("""
             SELECT NEW com.dirty.shop.dto.response.OrderResponse (
                 o.id,
+                o.userId,
                 o.code,
                 o.status,
                 o.paymentMethod,
                 o.reason,
                 o.shippingFee,
                 o.total,
-                o.createdAt
+                o.createdAt,
+                o.createdBy,
+                o.updatedAt,
+                o.updatedBy
             )
             FROM Order o
             WHERE (:#{#request.code} IS NULL OR o.code = :#{#request.code})

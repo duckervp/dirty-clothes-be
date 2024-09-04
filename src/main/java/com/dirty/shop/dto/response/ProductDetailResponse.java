@@ -1,12 +1,15 @@
 package com.dirty.shop.dto.response;
 
 import com.dirty.shop.model.ProductDetail;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-@Data
-@Builder
-public class ProductDetailResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@SuperBuilder
+public class ProductDetailResponse extends AuditableResponse {
     private Long id;
 
     private Long colorId;
@@ -24,6 +27,10 @@ public class ProductDetailResponse {
                 .size(productDetail.getSize().getValue())
                 .inventory(productDetail.getInventory())
                 .sold(productDetail.getSold())
+                .createdAt(productDetail.getCreatedAt())
+                .createdBy(productDetail.getCreatedBy())
+                .updatedAt(productDetail.getUpdatedAt())
+                .updatedBy(productDetail.getUpdatedBy())
                 .build();
     }
 }

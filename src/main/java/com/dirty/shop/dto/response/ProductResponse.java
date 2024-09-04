@@ -4,14 +4,17 @@ import com.dirty.shop.dto.projection.ColorProjection;
 import com.dirty.shop.enums.ProductStatus;
 import com.dirty.shop.model.Color;
 import com.dirty.shop.model.Product;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-@Data
-@Builder
-public class ProductResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@SuperBuilder
+public class ProductResponse extends AuditableResponse {
     private Long id;
 
     private String name;
@@ -45,6 +48,10 @@ public class ProductResponse {
                 .colors(colors)
                 .salePrice(product.getSalePrice())
                 .slug(product.getSlug())
+                .createdAt(product.getCreatedAt())
+                .createdBy(product.getCreatedBy())
+                .updatedAt(product.getUpdatedAt())
+                .updatedBy(product.getUpdatedBy())
                 .build();
     }
 }

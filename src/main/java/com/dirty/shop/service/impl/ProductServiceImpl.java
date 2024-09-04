@@ -228,6 +228,10 @@ public class ProductServiceImpl implements ProductService {
                 .salePrice(product.getSalePrice())
                 .slug(product.getSlug())
                 .avatarUrl(product.getAvatarUrl())
+                .createdAt(product.getCreatedAt())
+                .createdBy(product.getCreatedBy())
+                .updatedAt(product.getUpdatedAt())
+                .updatedBy(product.getUpdatedBy())
                 .build();
     }
 

@@ -2,7 +2,9 @@ package com.dirty.shop.rest;
 
 import com.dirty.shop.base.Response;
 import com.dirty.shop.base.WebConstants;
-import com.dirty.shop.dto.request.FindCategoryRequest;
+import com.dirty.shop.dto.request.CategoryFilterRequest;
+import com.dirty.shop.dto.request.FindAllCategoryRequest;
+import com.dirty.shop.dto.request.FindCategoryTreeRequest;
 import com.dirty.shop.dto.request.CategoryRequest;
 import com.dirty.shop.dto.response.CategoryResponse;
 import com.dirty.shop.model.Category;
@@ -22,8 +24,18 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping()
-    public ResponseEntity<Response<List<CategoryResponse>>> getAllCategories(FindCategoryRequest request) {
+    public ResponseEntity<Response<Page<Category>>> getAllCategories(FindAllCategoryRequest request) {
         return ResponseEntity.ok(Response.success(categoryService.findAll(request)));
+    }
+
+    @GetMapping("/tree")
+    public ResponseEntity<Response<List<CategoryResponse>>> getAllCategoryTree(FindCategoryTreeRequest request) {
+        return ResponseEntity.ok(Response.success(categoryService.findAllTree(request)));
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<Response<List<Category>>> getCategoryFilter(CategoryFilterRequest request) {
+        return ResponseEntity.ok(Response.success(categoryService.findCategoryFilter(request)));
     }
 
     @GetMapping("/{id}")

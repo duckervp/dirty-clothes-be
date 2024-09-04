@@ -3,14 +3,17 @@ package com.dirty.shop.dto.response;
 import com.dirty.shop.enums.ProductStatus;
 import com.dirty.shop.enums.ProductTarget;
 import com.dirty.shop.model.Category;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-@Data
-@Builder
-public class DetailedProductResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@SuperBuilder
+public class DetailedProductResponse extends AuditableResponse {
     private Long id;
 
     private String name;

@@ -1,7 +1,9 @@
 package com.dirty.shop.service;
 
 import com.dirty.shop.dto.request.FindOrderRequest;
+import com.dirty.shop.dto.request.OrderBulkActionRequest;
 import com.dirty.shop.dto.request.OrderRequest;
+import com.dirty.shop.dto.request.OrderStatusRequest;
 import com.dirty.shop.dto.response.OrderDetailResponse;
 import com.dirty.shop.dto.response.OrderResponse;
 import com.dirty.shop.model.Order;
@@ -25,4 +27,10 @@ public interface OrderService {
     String delete(List<Long> ids);
 
     Order findById(Long id);
+
+    String bulkAction(OrderBulkActionRequest request);
+
+    String updateStatus(Long id, OrderStatusRequest request);
+
+    String cancelOrder(Long id);
 }

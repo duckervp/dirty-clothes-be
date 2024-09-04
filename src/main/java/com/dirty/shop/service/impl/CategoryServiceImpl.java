@@ -1,15 +1,19 @@
 package com.dirty.shop.service.impl;
 
+import com.dirty.shop.dto.request.CategoryFilterRequest;
 import com.dirty.shop.dto.request.CategoryRequest;
-import com.dirty.shop.dto.request.FindCategoryRequest;
+import com.dirty.shop.dto.request.FindAllCategoryRequest;
+import com.dirty.shop.dto.request.FindCategoryTreeRequest;
 import com.dirty.shop.dto.response.CategoryItemResponse;
 import com.dirty.shop.dto.response.CategoryResponse;
 import com.dirty.shop.model.Category;
 import com.dirty.shop.repository.CategoryRepository;
 import com.dirty.shop.service.CategoryService;
 import com.dirty.shop.utils.BusinessUtils;
+import com.dirty.shop.utils.StreamUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,35 +29,31 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public List<CategoryResponse> findAll(FindCategoryRequest request) {
+    public Page<Category> findAll(FindAllCategoryRequest request) {
+        Sort sort = Sort.by(Sort.Direction.fromString(request.getSort()), request.getSortBy());
+        Pageable pageable = PageRequest.of(request.getPageNo(), request.getPageSize(), sort);
+        return categoryRepository.findAllCategory(request, pageable);
+    }
+
+    @Override
+    public List<CategoryResponse> findAllTree(FindCategoryTreeRequest request) {
         List<Category> categories = categoryRepository.findAll();
         List<CategoryResponse> categoryResponses = new ArrayList<>();
         Map<Long, List<CategoryItemResponse>> mapCategoryItemResponseByParentId = new HashMap<>();
 
         for (Category category : categories) {
-            category.setValue(BusinessUtils.genSlug(category.getName()));
             if (Objects.nonNull(category.getParentId())) {
                 if (!mapCategoryItemResponseByParentId.containsKey(category.getParentId())) {
                     mapCategoryItemResponseByParentId.put(category.getParentId(), new ArrayList<>());
                 }
                 mapCategoryItemResponseByParentId.get(category.getParentId())
-                        .add(CategoryItemResponse.builder()
-                                .id(category.getId())
-                                .name(category.getName())
-                                .value(category.getValue())
-                                .parentId(category.getParentId())
-                                .build());
+                        .add(CategoryItemResponse.from(category));
             }
         }
-        categoryRepository.saveAll(categories);
 
         for (Category category : categories) {
             if (Objects.isNull(category.getParentId())) {
-                CategoryItemResponse parent = CategoryItemResponse.builder()
-                        .id(category.getId())
-                        .name(category.getName())
-                        .value(category.getValue())
-                        .build();
+                CategoryItemResponse parent = CategoryItemResponse.from(category);
                 categoryResponses.add(CategoryResponse.builder()
                         .parent(parent)
                         .children(mapCategoryItemResponseByParentId.get(parent.getId()))
@@ -105,7 +105,14 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id).orElseThrow();
         category.setDeleted(true);
 
-        categoryRepository.save(category);
+        List<Category> children = categoryRepository.findByParentId(category.getId());
+        for (Category child : children) {
+            child.setDeleted(true);
+        }
+
+        children.add(category);
+
+        categoryRepository.saveAll(children);
         return "Delete category successful";
     }
 
@@ -114,7 +121,19 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> categories = categoryRepository.findAllById(ids);
         categories.forEach(e -> e.setDeleted(true));
 
+        List<Long> parentIds = StreamUtils.toList(categories, Category::getParentId);
+
+        List<Category> children = categoryRepository.findByParentIdIn(parentIds);
+        children.forEach(child -> child.setDeleted(true));
+
+        categories.addAll(children);
+
         categoryRepository.saveAll(categories);
         return "Delete list categories successful";
+    }
+
+    @Override
+    public List<Category> findCategoryFilter(CategoryFilterRequest request) {
+        return categoryRepository.findCategoryFilter(request);
     }
 }

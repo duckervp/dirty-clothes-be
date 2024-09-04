@@ -4,15 +4,18 @@ import com.dirty.shop.enums.OrderStatus;
 import com.dirty.shop.enums.PaymentMethod;
 import com.dirty.shop.model.Address;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 import java.util.List;
 
-@Data
-@Builder
-public class OrderDetailResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@SuperBuilder
+public class OrderDetailResponse extends AuditableResponse{
     private Long id;
 
     private String code;
@@ -28,9 +31,6 @@ public class OrderDetailResponse {
     private Double shippingFee;
 
     private Double total;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "UTC")
-    private Instant createdAt;
 
     List<OrderItemResponse> orderItems;
 }
