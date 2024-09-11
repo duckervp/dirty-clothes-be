@@ -63,6 +63,7 @@ public class OrderServiceImpl implements OrderService {
         Map<Long, User> mapUserById = StreamUtils.toMap(users, User::getId);
         Map<Long, OrderItemResponse> mapOrderItemToOrderId = new HashMap<>();
         Map<Long, Set<Long>> mapOrderTotalItem = new HashMap<>();
+        Map<Long, Integer> mapOrderTotalItemQuantity = new HashMap<>();
         for (OrderItemResponse orderItemResponse : orderItemResponses) {
             if (!mapOrderItemToOrderId.containsKey(orderItemResponse.getOrderId())) {
                 mapOrderItemToOrderId.put(orderItemResponse.getOrderId(), orderItemResponse);
@@ -72,12 +73,20 @@ public class OrderServiceImpl implements OrderService {
                 mapOrderTotalItem.put(orderItemResponse.getOrderId(), new HashSet<>());
             }
             mapOrderTotalItem.get(orderItemResponse.getOrderId()).add(orderItemResponse.getOrderDetailId());
+
+            if (!mapOrderTotalItemQuantity.containsKey(orderItemResponse.getOrderId())) {
+                mapOrderTotalItemQuantity.put(orderItemResponse.getOrderId(), 0);
+            }
+            mapOrderTotalItemQuantity.put(
+                    orderItemResponse.getOrderId(),
+                    mapOrderTotalItemQuantity.get(orderItemResponse.getOrderId()) + orderItemResponse.getQuantity());
         }
 
         page.getContent().forEach(t -> {
             t.setFirstItem(mapOrderItemToOrderId.get(t.getId()));
             t.setTotalItems(mapOrderTotalItem.get(t.getId()).size());
             t.setUser(mapUserById.get(t.getUserId()));
+            t.setTotalItemQuantity(mapOrderTotalItemQuantity.get(t.getId()));
         });
         return page;
     }

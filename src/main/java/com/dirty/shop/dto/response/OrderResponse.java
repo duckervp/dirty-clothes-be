@@ -36,6 +36,8 @@ public class OrderResponse {
 
     private Integer totalItems;
 
+    private Integer totalItemQuantity;
+
     private Instant createdAt;
 
     private String createdBy;
