@@ -1,12 +1,17 @@
 package com.dirty.shop.service.impl;
 
-import com.dirty.shop.dto.request.AddressRequest;
-import com.dirty.shop.dto.request.FindAddressRequest;
+import com.dirty.shop.dto.request.*;
 import com.dirty.shop.enums.Role;
 import com.dirty.shop.enums.apicode.AuthApiCode;
 import com.dirty.shop.exception.ApiException;
 import com.dirty.shop.model.Address;
+import com.dirty.shop.model.District;
+import com.dirty.shop.model.Province;
+import com.dirty.shop.model.Ward;
 import com.dirty.shop.repository.AddressRepository;
+import com.dirty.shop.repository.DistrictRepository;
+import com.dirty.shop.repository.ProvinceRepository;
+import com.dirty.shop.repository.WardRepository;
 import com.dirty.shop.service.AddressService;
 import com.dirty.shop.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +30,27 @@ import java.util.List;
 public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
+
+    private final ProvinceRepository provinceRepository;
+
+    private final DistrictRepository districtRepository;
+
+    private final WardRepository wardRepository;
+
+    @Override
+    public List<Province> findAllProvinces(ProvinceRequest request) {
+        return provinceRepository.findProvince(request);
+    }
+
+    @Override
+    public List<District> findAllDistricts(DistrictRequest request) {
+        return districtRepository.findDistrict(request);
+    }
+
+    @Override
+    public List<Ward> findAllWards(WardRequest request) {
+        return wardRepository.findWard(request);
+    }
 
     @Override
     public Address save(AddressRequest request) {

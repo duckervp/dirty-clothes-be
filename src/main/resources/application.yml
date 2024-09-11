@@ -2,7 +2,7 @@ spring:
   application:
     name: shop
   jpa:
-    show-sql: true
+    show-sql: false
     openInView: false
     properties:
       hibernate:

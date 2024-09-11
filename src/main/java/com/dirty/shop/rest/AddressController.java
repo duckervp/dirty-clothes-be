@@ -2,9 +2,11 @@ package com.dirty.shop.rest;
 
 import com.dirty.shop.base.Response;
 import com.dirty.shop.base.WebConstants;
-import com.dirty.shop.dto.request.AddressRequest;
-import com.dirty.shop.dto.request.FindAddressRequest;
+import com.dirty.shop.dto.request.*;
 import com.dirty.shop.model.Address;
+import com.dirty.shop.model.District;
+import com.dirty.shop.model.Province;
+import com.dirty.shop.model.Ward;
 import com.dirty.shop.service.AddressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +21,21 @@ import java.util.List;
 @RequestMapping(WebConstants.API_ADDRESS_PREFIX_V1)
 public class AddressController {
     private final AddressService addressService;
+
+    @GetMapping("/public/province")
+    public ResponseEntity<Response<List<Province>>> getAllProvinces(ProvinceRequest request) {
+        return ResponseEntity.ok(Response.success(addressService.findAllProvinces(request)));
+    }
+
+    @GetMapping("/public/district")
+    public ResponseEntity<Response<List<District>>> getAllDistricts(DistrictRequest request) {
+        return ResponseEntity.ok(Response.success(addressService.findAllDistricts(request)));
+    }
+
+    @GetMapping("/public/ward")
+    public ResponseEntity<Response<List<Ward>>> getAllWards(WardRequest request) {
+        return ResponseEntity.ok(Response.success(addressService.findAllWards(request)));
+    }
 
     @GetMapping()
     public ResponseEntity<Response<Page<Address>>> getAllAddresses(FindAddressRequest request) {

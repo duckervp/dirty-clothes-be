@@ -16,4 +16,5 @@ public class WebConstants {
 
 
     public static final String UPLOADED_FILE_PREFIX = "/uploads";
+    public static final String VN_ADDRESS_PREFIX = API_ADDRESS_PREFIX_V1 + "/public";
 }

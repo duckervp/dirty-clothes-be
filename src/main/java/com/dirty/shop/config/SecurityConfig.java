@@ -46,6 +46,7 @@ public class SecurityConfig {
             etc(WebConstants.API_FILE_PREFIX_V1),
 
             etc(WebConstants.UPLOADED_FILE_PREFIX),
+            etc(WebConstants.VN_ADDRESS_PREFIX),
 
             "/error",
             "/oauth2/**",
