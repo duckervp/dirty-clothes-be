@@ -14,7 +14,8 @@ public class BusinessUtils {
     }
 
     public static String genSlug(String text) {
+        text = deAccent(text);
         text = text.replaceAll("[^a-zA-Z0-9]", " ");
-        return String.join("-", deAccent(text).toLowerCase().split("\\s+"));
+        return String.join("-", text.toLowerCase().split("\\s+"));
     }
 }
