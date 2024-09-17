@@ -36,7 +36,7 @@ public interface ColorRepository extends JpaRepository<Color, Long> {
 
     @Query("""
         SELECT col FROM Color col
-        WHERE (:name IS NULL OR col.name = :name)
+        WHERE (:name IS NULL OR LOWER(col.name) LIKE CONCAT('%',LOWER(:name),'%'))
     """)
     Page<Color> findColor(String name, Pageable pageable);
 }

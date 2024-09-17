@@ -3,6 +3,7 @@ package com.dirty.shop.dto.response;
 import com.dirty.shop.enums.OrderStatus;
 import com.dirty.shop.enums.PaymentMethod;
 import com.dirty.shop.model.Address;
+import com.dirty.shop.model.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -33,4 +34,6 @@ public class OrderDetailResponse extends AuditableResponse{
     private Double total;
 
     List<OrderItemResponse> orderItems;
+
+    private User user;
 }

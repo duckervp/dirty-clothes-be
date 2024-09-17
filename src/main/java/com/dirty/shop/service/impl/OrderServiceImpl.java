@@ -332,6 +332,8 @@ public class OrderServiceImpl implements OrderService {
     /* PRIVATE */
 
     private OrderDetailResponse getOrderDetailResponse(Order order) {
+        User user = userRepository.findById(order.getUserId())
+                .orElseThrow(() -> new ApiException(AuthApiCode.USER_NOT_FOUND));
         Address address = addressRepository.findOrderAddressById(order.getShippingAddressId())
                 .orElseThrow(() -> new ApiException(AddressApiCode.ADDRESS_NOT_FOUND));
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(order.getId());
@@ -378,6 +380,7 @@ public class OrderServiceImpl implements OrderService {
                 .createdBy(order.getCreatedBy())
                 .updatedAt(order.getUpdatedAt())
                 .updatedBy(order.getUpdatedBy())
+                .user(User.getUserInfo(user))
                 .build();
     }
 }

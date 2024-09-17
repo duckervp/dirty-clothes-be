@@ -20,4 +20,6 @@ public class FindOrderRequest extends PageRequest {
     private Boolean userOnly;
 
     private Long userId;
+
+    private String username;
 }

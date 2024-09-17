@@ -31,9 +31,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                 o.updatedBy
             )
             FROM Order o
-            WHERE (:#{#request.code} IS NULL OR o.code = :#{#request.code})
+            LEFT JOIN User u ON o.userId = u.id
+            WHERE (:#{#request.code} IS NULL OR LOWER(o.code) LIKE CONCAT('%',LOWER(:#{#request.code}),'%'))
             AND (:#{#request.status} IS NULL OR o.status = :#{#request.status})
             AND (:#{#request.userId} IS NULL OR o.userId = :#{#request.userId})
+            AND (:#{#request.username} IS NULL OR LOWER(u.name) LIKE CONCAT('%',LOWER(:#{#request.username}),'%'))
             """)
     Page<OrderResponse> findOrder(FindOrderRequest request, Pageable pageable);
 
