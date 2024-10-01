@@ -1,4 +1,4 @@
-package com.dirty.shop;
+package com.cotrangvietvutamthu.shop;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;

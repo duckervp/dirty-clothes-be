@@ -1,4 +1,4 @@
-package com.dirty.shop;
+package com.cotrangvietvutamthu.shop;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
