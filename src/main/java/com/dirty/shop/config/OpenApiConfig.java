@@ -13,10 +13,12 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
 @Configuration
 @RequiredArgsConstructor
+@Profile({"!prod"})
 class OpenApiConfig {
 
     private final SpringDocProperty springDocProperty;

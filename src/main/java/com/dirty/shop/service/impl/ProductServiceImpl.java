@@ -112,7 +112,10 @@ public class ProductServiceImpl implements ProductService {
 
     private Comparator<Product> getComparator(FindProductRequest request) {
         return switch (request.getSortBy()) {
+            case "name" -> SortUtils.getStringComparator(Product::getName, request.getSort());
             case "price" -> SortUtils.getComparator(Product::getPrice, request.getSort());
+            case "sale" -> SortUtils.getComparator(Product::getSalePrice, request.getSort());
+            case "status" -> SortUtils.getComparator(Product::getStatus, request.getSort());
             case "createdAt" -> SortUtils.getComparator(Product::getCreatedAt, request.getSort());
             default -> SortUtils.getNoOpComparator();
         };

@@ -13,6 +13,7 @@ services:
   shop-app:
     image: <image>
     environment:
+      SPRING_PROFILES_ACTIVE: prod
       MYSQL_URL: shop-db/shop
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: <root_password>
@@ -24,3 +25,5 @@ services:
     depends_on:
       - shop-db
     restart: always
+    volumes:
+      - ./public/uploads:/public/uploads

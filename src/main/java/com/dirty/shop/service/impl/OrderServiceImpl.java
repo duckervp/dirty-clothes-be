@@ -58,9 +58,6 @@ public class OrderServiceImpl implements OrderService {
         Page<OrderResponse> page = orderRepository.findOrder(request, pageable);
         List<Long> orderIds = page.getContent().stream().map(OrderResponse::getId).toList();
         List<OrderItemResponse> orderItemResponses = orderDetailRepository.findOrderItemResponse(orderIds);
-        List<Long> userIds = StreamUtils.toList(page.getContent(), OrderResponse::getUserId);
-        List<User> users = userRepository.findAllById(userIds);
-        Map<Long, User> mapUserById = StreamUtils.toMap(users, User::getId);
         Map<Long, OrderItemResponse> mapOrderItemToOrderId = new HashMap<>();
         Map<Long, Set<Long>> mapOrderTotalItem = new HashMap<>();
         Map<Long, Integer> mapOrderTotalItemQuantity = new HashMap<>();
@@ -84,8 +81,7 @@ public class OrderServiceImpl implements OrderService {
 
         page.getContent().forEach(t -> {
             t.setFirstItem(mapOrderItemToOrderId.get(t.getId()));
-            t.setTotalItems(mapOrderTotalItem.get(t.getId()).size());
-            t.setUser(mapUserById.get(t.getUserId()));
+            t.setTotalItems(Objects.nonNull(mapOrderTotalItem.get(t.getId())) ? mapOrderTotalItem.get(t.getId()).size() : 0);
             t.setTotalItemQuantity(mapOrderTotalItemQuantity.get(t.getId()));
         });
         return page;

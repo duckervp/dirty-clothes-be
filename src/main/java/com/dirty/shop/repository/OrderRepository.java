@@ -17,18 +17,19 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("""
             SELECT NEW com.dirty.shop.dto.response.OrderResponse (
-                o.id,
-                o.userId,
-                o.code,
-                o.status,
-                o.paymentMethod,
-                o.reason,
-                o.shippingFee,
-                o.total,
-                o.createdAt,
-                o.createdBy,
-                o.updatedAt,
-                o.updatedBy
+                o.id AS id,
+                o.code AS code,
+                o.userId AS userId,
+                u.name AS userName,
+                o.status AS status,
+                o.paymentMethod AS paymentMethod,
+                o.reason AS reason,
+                o.shippingFee AS shippingFee,
+                o.total AS total,
+                o.createdAt AS createdAt,
+                o.createdBy AS createdBy,
+                o.updatedAt AS updatedAt,
+                o.updatedBy AS updatedBy
             )
             FROM Order o
             LEFT JOIN User u ON o.userId = u.id

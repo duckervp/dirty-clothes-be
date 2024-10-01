@@ -20,7 +20,7 @@ public class OrderResponse {
 
     private Long userId;
 
-    private User user;
+    private String userName;
 
     private OrderStatus status;
 
