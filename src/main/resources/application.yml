@@ -38,7 +38,10 @@ server:
   port: ${SERVER_PORT}
 
 springdoc:
+  api-docs:
+    enabled: ${ENABLE_SWAGGER}
   swaggerUi:
+    enabled: ${ENABLE_SWAGGER}
     showExtensions: true
     showCommonExtensions: true
   use-fqn: false #show class in detail
